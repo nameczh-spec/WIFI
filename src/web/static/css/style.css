@@ -2219,3 +2219,481 @@ body {
         font-size: 13px;
     }
 }
+
+/* === 渐进式信息展示 === */
+
+.info-panel {
+    position: relative;
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(22, 33, 62, 0.8));
+    border: 1px solid rgba(0, 255, 245, 0.2);
+    border-radius: 10px;
+    padding: 20px;
+    margin-bottom: 15px;
+    transition: all 0.3s ease;
+}
+
+.info-panel:hover {
+    border-color: rgba(0, 255, 245, 0.4);
+}
+
+.info-panel[data-level="basic"] {
+    min-height: 60px;
+}
+
+.info-panel[data-level="detailed"] {
+    min-height: 150px;
+}
+
+.info-panel[data-level="full"] {
+    min-height: auto;
+}
+
+.info-summary {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    cursor: pointer;
+}
+
+.info-summary-text {
+    color: #c0c0e0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.info-summary-text strong {
+    color: var(--accent-cyan);
+}
+
+.info-summary-text .key-value {
+    display: inline-block;
+    background: rgba(0, 255, 245, 0.1);
+    padding: 2px 8px;
+    border-radius: 4px;
+    color: var(--accent-cyan);
+    font-family: 'Consolas', monospace;
+    margin: 0 3px;
+}
+
+.expand-indicator {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    color: var(--accent-cyan);
+    font-size: 12px;
+    opacity: 0.7;
+    transition: opacity 0.3s;
+}
+
+.info-panel:hover .expand-indicator {
+    opacity: 1;
+}
+
+.expand-indicator .icon {
+    font-size: 16px;
+    transition: transform 0.3s;
+}
+
+.info-panel.expanded .expand-indicator .icon {
+    transform: rotate(180deg);
+}
+
+.info-detail {
+    display: none;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed rgba(0, 255, 245, 0.2);
+    animation: expandFadeIn 0.3s ease-out;
+}
+
+.info-panel.expanded .info-detail {
+    display: block;
+}
+
+@keyframes expandFadeIn {
+    from { opacity: 0; transform: translateY(-10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.info-detail-content {
+    color: #c0c0e0;
+    font-size: 14px;
+    line-height: 1.8;
+}
+
+.info-detail-content h4 {
+    color: var(--accent-magenta);
+    margin: 15px 0 10px 0;
+    font-size: 15px;
+}
+
+.info-detail-content p {
+    margin-bottom: 10px;
+}
+
+.info-detail-content ul {
+    margin: 10px 0;
+    padding-left: 20px;
+}
+
+.info-detail-content li {
+    margin-bottom: 5px;
+}
+
+.info-detail-content code {
+    background: rgba(0, 0, 0, 0.5);
+    padding: 2px 6px;
+    border-radius: 4px;
+    font-family: 'Consolas', monospace;
+    color: var(--success);
+}
+
+.info-detail-content .highlight-box {
+    background: rgba(0, 255, 245, 0.08);
+    border: 1px solid rgba(0, 255, 245, 0.3);
+    border-radius: 8px;
+    padding: 12px 15px;
+    margin: 12px 0;
+}
+
+.info-detail-content .highlight-box.success {
+    background: rgba(0, 255, 0, 0.08);
+    border-color: rgba(0, 255, 0, 0.3);
+}
+
+.info-detail-content .highlight-box.warning {
+    background: rgba(255, 204, 0, 0.08);
+    border-color: rgba(255, 204, 0, 0.3);
+}
+
+.info-detail-content .highlight-box.danger {
+    background: rgba(255, 51, 51, 0.08);
+    border-color: rgba(255, 51, 51, 0.3);
+}
+
+.info-steps {
+    margin: 15px 0;
+}
+
+.info-step {
+    display: flex;
+    gap: 15px;
+    padding: 12px;
+    margin-bottom: 8px;
+    background: rgba(22, 33, 62, 0.5);
+    border-radius: 8px;
+    border-left: 3px solid var(--accent-cyan);
+    transition: all 0.3s;
+}
+
+.info-step:hover {
+    background: rgba(0, 255, 245, 0.08);
+}
+
+.info-step-num {
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 255, 245, 0.2);
+    border-radius: 50%;
+    color: var(--accent-cyan);
+    font-weight: bold;
+    font-size: 14px;
+    flex-shrink: 0;
+}
+
+.info-step-content {
+    flex: 1;
+}
+
+.info-step-title {
+    color: var(--accent-cyan);
+    font-weight: bold;
+    font-size: 14px;
+    margin-bottom: 5px;
+}
+
+.info-step-desc {
+    color: #a0a0c0;
+    font-size: 13px;
+    line-height: 1.5;
+}
+
+.info-controls {
+    display: flex;
+    gap: 10px;
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(0, 255, 245, 0.2);
+}
+
+.info-controls .cyber-btn.small {
+    padding: 8px 18px;
+}
+
+/* === 统一讲解面板 === */
+
+.teaching-panel {
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.9), rgba(22, 33, 62, 0.9));
+    border: 1px solid rgba(255, 0, 255, 0.3);
+    border-radius: 12px;
+    padding: 25px;
+    margin: 20px 0;
+    position: relative;
+}
+
+.teaching-panel::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: 3px;
+    background: linear-gradient(90deg, var(--accent-magenta), var(--accent-cyan), var(--accent-magenta));
+}
+
+.teaching-panel-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+    padding-bottom: 15px;
+    border-bottom: 1px solid rgba(255, 0, 255, 0.2);
+}
+
+.teaching-panel-title {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+.teaching-panel-title h4 {
+    color: var(--accent-magenta);
+    font-size: 18px;
+    margin: 0;
+    text-shadow: 0 0 10px rgba(255, 0, 255, 0.5);
+}
+
+.teaching-panel-title .icon {
+    font-size: 24px;
+}
+
+.teaching-panel-tabs {
+    display: flex;
+    gap: 8px;
+}
+
+.teaching-tab {
+    padding: 8px 15px;
+    background: rgba(22, 33, 62, 0.8);
+    border: 1px solid rgba(0, 255, 245, 0.2);
+    border-radius: 6px;
+    color: #a0a0c0;
+    font-size: 13px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.teaching-tab:hover {
+    border-color: rgba(0, 255, 245, 0.4);
+    color: var(--accent-cyan);
+}
+
+.teaching-tab.active {
+    background: rgba(255, 0, 255, 0.15);
+    border-color: var(--accent-magenta);
+    color: var(--accent-magenta);
+}
+
+.teaching-panel-content {
+    min-height: 200px;
+}
+
+.teaching-section {
+    display: none;
+    animation: teachingFadeIn 0.3s ease-out;
+}
+
+.teaching-section.active {
+    display: block;
+}
+
+@keyframes teachingFadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.teaching-content-block {
+    margin-bottom: 20px;
+}
+
+.teaching-content-block h5 {
+    color: var(--accent-cyan);
+    font-size: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px dashed rgba(0, 255, 245, 0.2);
+}
+
+.teaching-content-block p {
+    color: #c0c0e0;
+    font-size: 14px;
+    line-height: 1.7;
+    margin-bottom: 10px;
+}
+
+.teaching-content-block .formula {
+    background: rgba(10, 10, 30, 0.8);
+    border: 1px solid rgba(0, 255, 245, 0.3);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 12px 0;
+    font-family: 'Consolas', monospace;
+    color: var(--success);
+    text-align: center;
+    font-size: 15px;
+}
+
+.teaching-content-block .diagram-placeholder {
+    background: rgba(22, 33, 62, 0.5);
+    border: 1px solid rgba(0, 255, 245, 0.2);
+    border-radius: 8px;
+    padding: 30px;
+    text-align: center;
+    color: #a0a0c0;
+    margin: 15px 0;
+}
+
+.teaching-warning-box {
+    background: rgba(255, 204, 0, 0.12);
+    border: 1px solid rgba(255, 204, 0, 0.4);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.teaching-warning-box h5 {
+    color: #ffff99;
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.teaching-warning-box p {
+    color: #ffcc00;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.teaching-tip-box {
+    background: rgba(0, 255, 245, 0.08);
+    border: 1px solid rgba(0, 255, 245, 0.3);
+    border-radius: 8px;
+    padding: 15px;
+    margin: 15px 0;
+}
+
+.teaching-tip-box h5 {
+    color: var(--accent-cyan);
+    margin-bottom: 8px;
+    font-size: 14px;
+}
+
+.teaching-tip-box p {
+    color: #c0c0e0;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+/* 讲解面板导航按钮 */
+.teaching-nav-btns {
+    display: flex;
+    justify-content: space-between;
+    margin-top: 20px;
+    padding-top: 15px;
+    border-top: 1px solid rgba(255, 0, 255, 0.2);
+}
+
+.teaching-nav-btns .cyber-btn {
+    min-width: 120px;
+}
+
+/* 可折叠讲解块 */
+.collapsible-teaching {
+    margin: 15px 0;
+}
+
+.collapsible-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 15px;
+    background: rgba(22, 33, 62, 0.6);
+    border: 1px solid rgba(0, 255, 245, 0.2);
+    border-radius: 8px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.collapsible-header:hover {
+    background: rgba(0, 255, 245, 0.1);
+    border-color: rgba(0, 255, 245, 0.4);
+}
+
+.collapsible-title {
+    color: var(--accent-cyan);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.collapsible-toggle {
+    color: var(--accent-cyan);
+    font-size: 18px;
+    transition: transform 0.3s;
+}
+
+.collapsible-teaching.expanded .collapsible-toggle {
+    transform: rotate(180deg);
+}
+
+.collapsible-body {
+    display: none;
+    padding: 15px;
+    background: rgba(10, 10, 30, 0.6);
+    border: 1px solid rgba(0, 255, 245, 0.2);
+    border-top: none;
+    border-radius: 0 0 8px 8px;
+    animation: collapsibleFadeIn 0.3s ease-out;
+}
+
+.collapsible-teaching.expanded .collapsible-body {
+    display: block;
+}
+
+@keyframes collapsibleFadeIn {
+    from { opacity: 0; max-height: 0; }
+    to { opacity: 1; max-height: 500px; }
+}
+
+/* 响应式补充 */
+@media (max-width: 768px) {
+    .teaching-panel-header {
+        flex-direction: column;
+        gap: 15px;
+        align-items: flex-start;
+    }
+
+    .teaching-panel-tabs {
+        flex-wrap: wrap;
+    }
+
+    .info-controls {
+        flex-direction: column;
+    }
+
+    .info-step {
+        flex-direction: column;
+        gap: 10px;
+    }
+}

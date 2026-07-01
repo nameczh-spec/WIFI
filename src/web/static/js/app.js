@@ -512,4 +512,409 @@ document.addEventListener('DOMContentLoaded', () => {
         window.visualizer = new DataVisualization('/api');
         window.visualizer.init();
     }
+
+    // 初始化渐进式信息展示
+    window.infoPanelManager = new InfoPanelManager();
+
+    // 初始化统一讲解面板
+    window.teachingPanelManager = new TeachingPanelManager();
 });
+
+
+/**
+ * 渐进式信息展示管理器
+ * 实现basic/detailed/full三级信息展示
+ */
+class InfoPanelManager {
+    constructor() {
+        this.panels = new Map();
+        this.init();
+    }
+
+    init() {
+        // 绑定所有info-panel的点击事件
+        document.querySelectorAll('.info-panel').forEach(panel => {
+            this.bindPanel(panel);
+        });
+
+        // 绑定collapsible-teaching
+        document.querySelectorAll('.collapsible-teaching').forEach(item => {
+            this.bindCollapsible(item);
+        });
+    }
+
+    bindPanel(panel) {
+        const id = panel.id || `panel-${Date.now()}-${Math.random().toString(36).substr(2, 9)}`;
+        panel.id = id;
+
+        const summary = panel.querySelector('.info-summary');
+        if (summary) {
+            summary.addEventListener('click', () => this.togglePanel(id));
+        }
+
+        // 存储面板状态
+        this.panels.set(id, {
+            level: panel.dataset.level || 'basic',
+            expanded: false
+        });
+    }
+
+    bindCollapsible(item) {
+        const header = item.querySelector('.collapsible-header');
+        if (header) {
+            header.addEventListener('click', () => {
+                item.classList.toggle('expanded');
+            });
+        }
+    }
+
+    togglePanel(id) {
+        const panel = document.getElementById(id);
+        if (!panel) return;
+
+        const state = this.panels.get(id);
+        if (!state) return;
+
+        state.expanded = !state.expanded;
+        panel.classList.toggle('expanded', state.expanded);
+
+        // 更新展开指示器
+        const indicator = panel.querySelector('.expand-indicator');
+        if (indicator) {
+            const text = indicator.querySelector('.text');
+            if (text) {
+                text.textContent = state.expanded ? '收起' : '展开详情';
+            }
+        }
+
+        // 如果展开到detailed，可以异步加载更多数据
+        if (state.expanded && state.level === 'basic') {
+            this.loadDetailedData(id);
+        }
+    }
+
+    async loadDetailedData(id) {
+        const panel = document.getElementById(id);
+        const dataType = panel.dataset.type;
+        const dataId = panel.dataset.dataId;
+
+        if (!dataType) return;
+
+        try {
+            const res = await fetch(`/api/${dataType}/detail?id=${dataId}`);
+            const data = await res.json();
+
+            if (data.success) {
+                this.updatePanelContent(id, data.data);
+            }
+        } catch (e) {
+            console.error('加载详细数据失败:', e);
+        }
+    }
+
+    updatePanelContent(id, data) {
+        const panel = document.getElementById(id);
+        const detailContent = panel.querySelector('.info-detail-content');
+
+        if (!detailContent) return;
+
+        // 根据数据类型更新内容
+        if (data.steps) {
+            detailContent.innerHTML = this.renderSteps(data.steps);
+        } else if (data.content) {
+            detailContent.innerHTML = data.content;
+        }
+    }
+
+    renderSteps(steps) {
+        let html = '<div class="info-steps">';
+        steps.forEach((step, i) => {
+            html += `
+                <div class="info-step">
+                    <div class="info-step-num">${i + 1}</div>
+                    <div class="info-step-content">
+                        <div class="info-step-title">${step.title}</div>
+                        <div class="info-step-desc">${step.description}</div>
+                    </div>
+                </div>
+            `;
+        });
+        html += '</div>';
+        return html;
+    }
+
+    setLevel(id, level) {
+        const panel = document.getElementById(id);
+        if (!panel) return;
+
+        panel.dataset.level = level;
+        const state = this.panels.get(id);
+        if (state) {
+            state.level = level;
+        }
+    }
+
+    // 创建新的信息面板
+    createPanel(config) {
+        const panel = document.createElement('div');
+        panel.className = 'info-panel';
+        panel.id = config.id || `panel-${Date.now()}`;
+        panel.dataset.level = config.level || 'basic';
+        panel.dataset.type = config.type || '';
+        panel.dataset.dataId = config.dataId || '';
+
+        panel.innerHTML = `
+            <div class="info-summary">
+                <div class="info-summary-text">${config.summary || ''}</div>
+                <div class="expand-indicator">
+                    <span class="text">展开详情</span>
+                    <span class="icon">▼</span>
+                </div>
+            </div>
+            <div class="info-detail">
+                <div class="info-detail-content">
+                    ${config.detail || '<p>加载中...</p>'}
+                </div>
+                ${config.showControls ? `
+                    <div class="info-controls">
+                        <button class="cyber-btn small" data-action="full">查看完整详情</button>
+                        <button class="cyber-btn small" data-action="reset">返回摘要</button>
+                    </div>
+                ` : ''}
+            </div>
+        `;
+
+        this.bindPanel(panel);
+        return panel;
+    }
+}
+
+
+/**
+ * 统一讲解面板管理器
+ * 提供技术原理讲解、交互式教学等功能
+ */
+class TeachingPanelManager {
+    constructor() {
+        this.activePanel = null;
+        this.sections = new Map();
+        this.init();
+    }
+
+    init() {
+        // 绑定所有teaching-panel
+        document.querySelectorAll('.teaching-panel').forEach(panel => {
+            this.bindPanel(panel);
+        });
+
+        // 绑定tab切换
+        document.querySelectorAll('.teaching-tab').forEach(tab => {
+            tab.addEventListener('click', (e) => {
+                const panelId = e.target.closest('.teaching-panel').id;
+                const sectionId = tab.dataset.section;
+                this.switchSection(panelId, sectionId);
+            });
+        });
+    }
+
+    bindPanel(panel) {
+        const id = panel.id || `teaching-${Date.now()}`;
+        panel.id = id;
+
+        // 存储sections
+        panel.querySelectorAll('.teaching-section').forEach(section => {
+            const sectionId = section.dataset.sectionId || `section-${Date.now()}`;
+            section.dataset.sectionId = sectionId;
+            this.sections.set(`${id}-${sectionId}`, section);
+        });
+    }
+
+    switchSection(panelId, sectionId) {
+        const panel = document.getElementById(panelId);
+        if (!panel) return;
+
+        // 更新tabs
+        panel.querySelectorAll('.teaching-tab').forEach(tab => {
+            tab.classList.toggle('active', tab.dataset.section === sectionId);
+        });
+
+        // 更新sections
+        panel.querySelectorAll('.teaching-section').forEach(section => {
+            section.classList.toggle('active', section.dataset.sectionId === sectionId);
+        });
+    }
+
+    // 创建讲解面板
+    createPanel(config) {
+        const panel = document.createElement('div');
+        panel.className = 'teaching-panel';
+        panel.id = config.id || `teaching-${Date.now()}`;
+
+        let tabsHtml = '';
+        let sectionsHtml = '';
+
+        if (config.sections) {
+            config.sections.forEach((section, i) => {
+                const sectionId = `section-${i}`;
+                tabsHtml += `
+                    <div class="teaching-tab ${i === 0 ? 'active' : ''}" data-section="${sectionId}">
+                        ${section.title}
+                    </div>
+                `;
+                sectionsHtml += `
+                    <div class="teaching-section ${i === 0 ? 'active' : ''}" data-section-id="${sectionId}">
+                        ${this.renderSectionContent(section)}
+                    </div>
+                `;
+            });
+        }
+
+        panel.innerHTML = `
+            <div class="teaching-panel-header">
+                <div class="teaching-panel-title">
+                    <span class="icon">${config.icon || '📚'}</span>
+                    <h4>${config.title || '技术讲解'}</h4>
+                </div>
+                <div class="teaching-panel-tabs">
+                    ${tabsHtml}
+                </div>
+            </div>
+            <div class="teaching-panel-content">
+                ${sectionsHtml}
+            </div>
+            ${config.showNav ? `
+                <div class="teaching-nav-btns">
+                    <button class="cyber-btn" data-action="prev">◀ 上一节</button>
+                    <button class="cyber-btn" data-action="next">下一节 ▶</button>
+                </div>
+            ` : ''}
+        `;
+
+        this.bindPanel(panel);
+
+        // 绑定导航按钮
+        if (config.showNav) {
+            panel.querySelectorAll('[data-action]').forEach(btn => {
+                btn.addEventListener('click', (e) => {
+                    const action = e.target.dataset.action;
+                    this.navigate(panel.id, action);
+                });
+            });
+        }
+
+        return panel;
+    }
+
+    renderSectionContent(section) {
+        let html = '';
+
+        if (section.intro) {
+            html += `
+                <div class="teaching-content-block">
+                    <p>${section.intro}</p>
+                </div>
+            `;
+        }
+
+        if (section.formula) {
+            html += `
+                <div class="teaching-content-block">
+                    <h5>核心公式</h5>
+                    <div class="formula">${section.formula}</div>
+                </div>
+            `;
+        }
+
+        if (section.steps) {
+            html += `
+                <div class="teaching-content-block">
+                    <h5>步骤解析</h5>
+                    <div class="info-steps">
+                        ${section.steps.map((step, i) => `
+                            <div class="info-step">
+                                <div class="info-step-num">${i + 1}</div>
+                                <div class="info-step-content">
+                                    <div class="info-step-title">${step.title}</div>
+                                    <div class="info-step-desc">${step.desc}</div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
+                </div>
+            `;
+        }
+
+        if (section.warning) {
+            html += `
+                <div class="teaching-warning-box">
+                    <h5>⚠️ 安全警告</h5>
+                    <p>${section.warning}</p>
+                </div>
+            `;
+        }
+
+        if (section.tip) {
+            html += `
+                <div class="teaching-tip-box">
+                    <h5>💡 小提示</h5>
+                    <p>${section.tip}</p>
+                </div>
+            `;
+        }
+
+        return html;
+    }
+
+    navigate(panelId, action) {
+        const panel = document.getElementById(panelId);
+        if (!panel) return;
+
+        const tabs = Array.from(panel.querySelectorAll('.teaching-tab'));
+        const activeTab = tabs.find(t => t.classList.contains('active'));
+        if (!activeTab) return;
+
+        const currentIndex = tabs.indexOf(activeTab);
+        let newIndex;
+
+        if (action === 'prev') {
+            newIndex = Math.max(0, currentIndex - 1);
+        } else if (action === 'next') {
+            newIndex = Math.min(tabs.length - 1, currentIndex + 1);
+        }
+
+        if (newIndex !== currentIndex) {
+            const newSectionId = tabs[newIndex].dataset.section;
+            this.switchSection(panelId, newSectionId);
+        }
+    }
+
+    // 加载远程讲解内容
+    async loadContent(panelId, type, params = {}) {
+        try {
+            const query = new URLSearchParams(params).toString();
+            const res = await fetch(`/api/teaching/${type}?${query}`);
+            const data = await res.json();
+
+            if (data.success) {
+                this.updateContent(panelId, data.content);
+            }
+        } catch (e) {
+            console.error('加载讲解内容失败:', e);
+        }
+    }
+
+    updateContent(panelId, content) {
+        const panel = document.getElementById(panelId);
+        if (!panel) return;
+
+        const contentArea = panel.querySelector('.teaching-panel-content');
+        if (contentArea) {
+            contentArea.innerHTML = content;
+        }
+    }
+}
+
+
+// 导出模块
+window.InfoPanelManager = InfoPanelManager;
+window.TeachingPanelManager = TeachingPanelManager;
