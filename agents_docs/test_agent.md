@@ -140,6 +140,9 @@ python test_xxx.py -v
 | test_wpa2_handshake.py | WPA2握手分析 | ✅ 8/8通过 |
 | test_password_strength.py | 密码强度测试 | ✅ 8/8通过 |
 | test_key_derivation.py | 密钥推导演示 | ✅ 7/7通过 |
+| test_security_eval.py | 安全评估模块 | ✅ 8/8通过 |
+
+**总计: 38个测试用例全部通过**
 
 ## 更新记录
 - 2026-07-01: 创建Test Agent定义
