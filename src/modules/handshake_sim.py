@@ -650,6 +650,406 @@ class WPAHandshakeSimulator:
             "请在自己的网络上进行学习和实验",
         ]
 
+    def get_pbkdf2_detail(self, password: str, ssid: str) -> Dict:
+        """PBKDF2逐步骤计算演示"""
+        iterations = 4096
+        pmk = hashlib.pbkdf2_hmac('sha1', password.encode(), ssid.encode(), iterations, 32)
+        
+        steps = []
+        
+        steps.append({
+            "step_num": 1,
+            "title": "准备输入",
+            "description": "PBKDF2需要四个输入参数：密码、盐（SSID）、迭代次数、输出长度",
+            "input_preview": f"密码: {'•' * len(password)} ({len(password)}字符)\nSSID: {ssid}\n迭代次数: {iterations}\n输出长度: 32字节 (256位)",
+            "output_preview": "等待计算...",
+            "algorithm": "PBKDF2-HMAC-SHA1",
+        })
+        
+        steps.append({
+            "step_num": 2,
+            "title": "第1次迭代 (U1)",
+            "description": "第一次迭代：对密码 + 盐 + 块索引 计算HMAC-SHA1",
+            "input_preview": f"HMAC-SHA1(密码, SSID || 0x00000001)",
+            "output_preview": "U1 = HMAC-SHA1(Password, Salt || 1)\n(20字节SHA1输出)",
+            "algorithm": "HMAC-SHA1",
+            "note": "这是第1次HMAC计算，结果作为U1",
+        })
+        
+        steps.append({
+            "step_num": 3,
+            "title": "迭代累积 (U2 ~ U4096)",
+            "description": f"后续每次迭代：用上一次的结果作为输入再次计算HMAC，然后与累积结果异或",
+            "input_preview": f"U2 = HMAC-SHA1(密码, U1)\nU3 = HMAC-SHA1(密码, U2)\n...\n重复 {iterations} 次",
+            "output_preview": f"DK = U1 ⊕ U2 ⊕ U3 ⊕ ... ⊕ U{iterations}",
+            "algorithm": "HMAC-SHA1 × 4096次 + XOR累积",
+            "note": f"这是最耗时的步骤，{iterations}次迭代使得暴力破解的成本大幅增加",
+        })
+        
+        steps.append({
+            "step_num": 4,
+            "title": "生成最终PMK",
+            "description": "经过4096次迭代后，得到最终的256位PMK（成对主密钥）",
+            "input_preview": f"密码 + SSID + {iterations}次HMAC迭代",
+            "output_preview": f"PMK: {pmk.hex()[:32]}... (32字节/256位)",
+            "algorithm": "PBKDF2-HMAC-SHA1 完成",
+        })
+        
+        return {
+            "success": True,
+            "steps": steps,
+            "pmk": pmk.hex(),
+            "iterations": iterations,
+            "password_length": len(password),
+            "ssid": ssid,
+        }
+
+    def get_prf_detail(self, pmk_hex: str, ap_mac: str, client_mac: str,
+                       anonce: str, snonce: str) -> Dict:
+        """PRF-X函数详细演示"""
+        pmk = bytes.fromhex(pmk_hex)
+        
+        def mac_to_bytes(mac_str: str) -> bytes:
+            return bytes.fromhex(mac_str.replace(':', ''))
+        
+        ap_b = mac_to_bytes(ap_mac)
+        cli_b = mac_to_bytes(client_mac)
+        a_n = bytes.fromhex(anonce)
+        s_n = bytes.fromhex(snonce)
+        
+        mac_min = min(ap_b, cli_b)
+        mac_max = max(ap_b, cli_b)
+        nonce_min = min(a_n, s_n)
+        nonce_max = max(a_n, s_n)
+        
+        label = b"Pairwise key expansion"
+        data = label + b"\x00" + mac_min + mac_max + nonce_min + nonce_max
+        
+        full_ptk = b""
+        for i in range(4):
+            round_data = data + bytes([i])
+            round_result = hmac.new(pmk, round_data, hashlib.sha1).digest()
+            full_ptk += round_result
+        
+        ptk = full_ptk[:48]
+        
+        steps = [
+            {
+                "step_num": 1,
+                "title": "准备PRF输入",
+                "description": "PRF（伪随机函数）需要PMK、标签字符串和输入数据",
+                "input_preview": f"PMK: {pmk_hex[:16]}...\n标签: 'Pairwise key expansion'\n数据: Min(MAC)||Max(MAC)||Min(Nonce)||Max(Nonce)",
+                "output_preview": "等待计算...",
+                "algorithm": "PRF-SHA1",
+            },
+            {
+                "step_num": 2,
+                "title": "排序地址和Nonce",
+                "description": "为了确保AP和客户端计算出相同的PTK，需要对MAC地址和Nonce进行排序",
+                "input_preview": f"AP_MAC: {ap_mac}\nClient_MAC: {client_mac}\nANonce: {anonce[:16]}...\nSNonce: {snonce[:16]}...",
+                "output_preview": f"Min(MAC): {mac_min.hex()}\nMax(MAC): {mac_max.hex()}\nMin(Nonce): {nonce_min.hex()[:16]}...\nMax(Nonce): {nonce_max.hex()[:16]}...",
+                "note": "排序保证双方计算顺序一致，结果相同",
+            },
+            {
+                "step_num": 3,
+                "title": "多轮HMAC扩展",
+                "description": "通过多轮HMAC-SHA1将PMK扩展到需要的长度",
+                "input_preview": f"PTK-0 = HMAC-SHA1(PMK, 数据 || 0)\nPTK-1 = HMAC-SHA1(PMK, 数据 || 1)\nPTK-2 = HMAC-SHA1(PMK, 数据 || 2)\nPTK-3 = HMAC-SHA1(PMK, 数据 || 3)",
+                "output_preview": f"PTK = PTK-0 || PTK-1 || PTK-2 || PTK-3 (取前48字节)",
+                "algorithm": "HMAC-SHA1 × 4轮",
+            },
+            {
+                "step_num": 4,
+                "title": "生成最终PTK",
+                "description": "拼接并截取，得到48字节的PTK",
+                "input_preview": "4轮HMAC输出拼接",
+                "output_preview": f"PTK: {ptk.hex()[:48]}... (48字节/384位)",
+                "algorithm": "PRF-SHA1 完成",
+            },
+        ]
+        
+        return {
+            "success": True,
+            "ptk": ptk.hex(),
+            "steps": steps,
+            "ap_mac": ap_mac,
+            "client_mac": client_mac,
+            "anonce": anonce,
+            "snonce": snonce,
+            "label": label.decode(),
+        }
+
+    def decompose_ptk(self, ptk_hex: str) -> Dict:
+        """将PTK分解为各个子密钥"""
+        ptk = bytes.fromhex(ptk_hex)
+        
+        kck = ptk[0:16]
+        kek = ptk[16:32]
+        tk = ptk[32:48]
+        
+        mic_tx = ptk[0:8] if len(ptk) >= 8 else b""
+        mic_rx = ptk[8:16] if len(ptk) >= 16 else b""
+        
+        return {
+            "success": True,
+            "total_length": len(ptk),
+            "kck": {
+                "name": "KCK (Key Confirmation Key)",
+                "offset": "0-15字节",
+                "length": "16字节 (128位)",
+                "purpose": "密钥确认密钥，用于计算MIC（消息完整性校验）",
+                "hex": kck.hex(),
+            },
+            "kek": {
+                "name": "KEK (Key Encryption Key)",
+                "offset": "16-31字节",
+                "length": "16字节 (128位)",
+                "purpose": "密钥加密密钥，用于加密传输GTK",
+                "hex": kek.hex(),
+            },
+            "tk": {
+                "name": "TK (Temporal Key)",
+                "offset": "32-47字节",
+                "length": "16字节 (128位)",
+                "purpose": "临时密钥，用于实际数据加密（CCMP/TKIP）",
+                "hex": tk.hex(),
+            },
+            "mic_tx": {
+                "name": "MIC Tx (Michael Tx)",
+                "offset": "PTK前半部分派生",
+                "length": "8字节 (64位)",
+                "purpose": "发送方向的Michael算法完整性校验密钥（TKIP使用）",
+                "hex": mic_tx.hex(),
+            },
+            "mic_rx": {
+                "name": "MIC Rx (Michael Rx)",
+                "offset": "PTK前半部分派生",
+                "length": "8字节 (64位)",
+                "purpose": "接收方向的Michael算法完整性校验密钥（TKIP使用）",
+                "hex": mic_rx.hex(),
+            },
+        }
+
+    def get_derivation_chain(self) -> Dict:
+        """密钥推导链可视化数据"""
+        nodes = [
+            {"id": "password", "label": "用户密码", "level": 0, "type": "input"},
+            {"id": "ssid", "label": "SSID (盐)", "level": 0, "type": "input"},
+            {"id": "pmk", "label": "PMK\n成对主密钥", "level": 1, "type": "key"},
+            {"id": "ptk", "label": "PTK\n成对临时密钥", "level": 2, "type": "key"},
+            {"id": "kck", "label": "KCK\n密钥确认密钥", "level": 3, "type": "subkey"},
+            {"id": "kek", "label": "KEK\n密钥加密密钥", "level": 3, "type": "subkey"},
+            {"id": "tk", "label": "TK\n临时密钥", "level": 3, "type": "subkey"},
+            {"id": "gtk", "label": "GTK\n组临时密钥", "level": 2, "type": "key"},
+            {"id": "data_encryption", "label": "数据加密\n(CCMP/TKIP)", "level": 4, "type": "usage"},
+            {"id": "mic", "label": "MIC验证\n(消息完整性)", "level": 4, "type": "usage"},
+            {"id": "gtk_encryption", "label": "GTK加密传输", "level": 4, "type": "usage"},
+        ]
+        
+        edges = [
+            {"from": "password", "to": "pmk", "label": "PBKDF2\n4096次迭代", "algorithm": "HMAC-SHA1"},
+            {"from": "ssid", "to": "pmk", "label": "作为盐", "algorithm": ""},
+            {"from": "pmk", "to": "ptk", "label": "PRF + ANonce + SNonce + MAC", "algorithm": "HMAC-SHA1"},
+            {"from": "ptk", "to": "kck", "label": "分解", "algorithm": "0-15字节"},
+            {"from": "ptk", "to": "kek", "label": "分解", "algorithm": "16-31字节"},
+            {"from": "ptk", "to": "tk", "label": "分解", "algorithm": "32-47字节"},
+            {"from": "kck", "to": "mic", "label": "计算MIC", "algorithm": "HMAC-SHA1"},
+            {"from": "kek", "to": "gtk_encryption", "label": "加密GTK", "algorithm": "AES-Keywrap"},
+            {"from": "tk", "to": "data_encryption", "label": "加密数据", "algorithm": "AES-CCM"},
+            {"from": "pmk", "to": "gtk", "label": "AP生成", "algorithm": "随机"},
+        ]
+        
+        return {
+            "success": True,
+            "nodes": nodes,
+            "edges": edges,
+            "levels": 5,
+            "description": "WPA2密钥层次结构：密码 → PMK → PTK → 子密钥 → 实际使用",
+        }
+
+    def get_pbkdf2_animation_data(self, password: str, ssid: str,
+                                  num_iterations: int = 10) -> Dict:
+        """PBKDF2迭代动画数据（可视化用）"""
+        iterations_data = []
+        password_bytes = password.encode()
+        salt = ssid.encode()
+        
+        prev_hash = b""
+        accumulator = b"\x00" * 20
+        
+        for i in range(1, num_iterations + 1):
+            if i == 1:
+                u_input = salt + b"\x00\x00\x00\x01"
+                current_hash = hmac.new(password_bytes, u_input, hashlib.sha1).digest()
+                prev_hash = current_hash
+            else:
+                current_hash = hmac.new(password_bytes, prev_hash, hashlib.sha1).digest()
+                prev_hash = current_hash
+            
+            accumulator = bytes(a ^ b for a, b in zip(accumulator, current_hash))
+            
+            iterations_data.append({
+                "iteration": i,
+                "input_hash": prev_hash.hex() if i > 1 else (salt + b"\x00\x00\x00\x01").hex()[:40],
+                "output_hash": current_hash.hex(),
+                "accumulator": accumulator.hex(),
+                "operation": "U1 = HMAC(P, S || 1)" if i == 1 else f"U{i} = HMAC(P, U{i-1})",
+                "accumulate_op": f"DK ⊕= U{i}",
+            })
+        
+        return {
+            "success": True,
+            "iterations": iterations_data,
+            "total_iterations": 4096,
+            "showing_iterations": num_iterations,
+            "note": f"展示前{num_iterations}次迭代，实际WPA2使用4096次迭代",
+        }
+
+    def get_key_security_explanations(self) -> Dict:
+        """密钥安全原理解释"""
+        return {
+            "pmk_security": {
+                "title": "PMK的安全性",
+                "principle": """
+                    <h4>PMK是如何保证安全的？</h4>
+                    <p>PMK（成对主密钥）由密码通过PBKDF2算法派生。PBKDF2的核心设计是<strong>慢</strong>——故意让计算变得昂贵。</p>
+                    
+                    <h4>关键安全机制</h4>
+                    <ul>
+                        <li><strong>4096次迭代</strong>：每次密码尝试都需要4096次HMAC-SHA1计算</li>
+                        <li><strong>盐值（SSID）</strong>：相同密码在不同网络产生不同PMK</li>
+                        <li><strong>单向函数</strong>：无法从PMK反推密码</li>
+                    </ul>
+                    
+                    <h4>为什么用4096次？</h4>
+                    <p>迭代次数是安全性和用户体验的权衡：</p>
+                    <ul>
+                        <li>次数太少：容易被暴力破解</li>
+                        <li>次数太多：连接太慢，用户体验差</li>
+                        <li>4096是2004年WPA2标准制定时的合理选择</li>
+                    </ul>
+                """,
+                "why_secure": """
+                    <h4>为什么这是安全的？</h4>
+                    <ol>
+                        <li><strong>计算成本高</strong>：尝试一个密码需要4096次HMAC计算</li>
+                        <li><strong>GPU也有极限</strong>：即使GPU每秒尝试10万次，8位纯字母密码也需要约3年</li>
+                        <li><strong>强密码无解</strong>：12位混合密码的组合空间是94^12，远超任何计算能力</li>
+                    </ol>
+                    
+                    <p><strong>结论：PMK的设计是安全的，弱点在于用户的密码强度。</strong></p>
+                """,
+            },
+            "ptk_security": {
+                "title": "PTK的安全性",
+                "principle": """
+                    <h4>PTK的安全特性</h4>
+                    <p>PTK（成对临时密钥）的设计目标是<strong>前向保密性</strong>。</p>
+                    
+                    <h4>前向保密性（Forward Secrecy）</h4>
+                    <p>即使某次会话的PTK泄露，也不会影响其他会话的安全，也不会泄露PMK。</p>
+                    
+                    <h4>实现原理</h4>
+                    <ul>
+                        <li><strong>每次握手都不同</strong>：ANonce和SNonce都是随机的</li>
+                        <li><strong>PRF是单向的</strong>：无法从PTK反推PMK</li>
+                        <li><strong>会话结束即失效</strong>：断开连接后PTK就没用了</li>
+                    </ul>
+                    
+                    <h4>为什么每次都要重新生成？</h4>
+                    <ol>
+                        <li>限制密钥使用时间：减少被破解的时间窗口</li>
+                        <li>隔离不同会话：一个会话被破解不影响其他会话</li>
+                        <li>防止累积攻击：截获的数据包越多，不会越容易破解</li>
+                    </ol>
+                """,
+                "why_secure": """
+                    <h4>安全保障</h4>
+                    <ul>
+                        <li><strong>随机Nonce</strong>：ANonce和SNonce都是32字节的真随机数</li>
+                        <li><strong>HMAC-SHA1</strong>：经过严格密码学分析的伪随机函数</li>
+                        <li><strong>384位输出</strong>：PTK长达48字节，强度充足</li>
+                    </ul>
+                    
+                    <p><strong>结论：PTK的派生机制是安全的，只要PMK安全，PTK就安全。</strong></p>
+                """,
+            },
+            "forward_secrecy": {
+                "title": "前向保密性详解",
+                "principle": """
+                    <h4>什么是前向保密性？</h4>
+                    <p>前向保密性（Forward Secrecy / Perfect Forward Secrecy）是指：</p>
+                    <blockquote>即使长期密钥（如PMK或密码）泄露，之前的会话密钥（如PTK）也无法被还原。</blockquote>
+                    
+                    <h4>WPA2中的前向保密性</h4>
+                    <p>WPA2具有部分前向保密性：</p>
+                    <ul>
+                        <li>✅ 每次握手生成不同的PTK</li>
+                        <li>✅ 无法从PTK反推PMK</li>
+                        <li>❌ 但如果知道密码，可以重新计算任何会话的PTK（只要知道Nonce）</li>
+                    </ul>
+                    
+                    <h4>WPA3的改进</h4>
+                    <p>WPA3使用SAE（Simultaneous Authentication of Equals）协议，提供了真正的前向保密性：</p>
+                    <ul>
+                        <li>✅ 即使知道密码，也无法还原之前的会话密钥</li>
+                        <li>✅ 抵抗离线字典攻击</li>
+                        <li>✅ Dragonfly握手协议</li>
+                    </ul>
+                """,
+                "why_secure": """
+                    <h4>为什么前向保密性很重要？</h4>
+                    <ol>
+                        <li><strong>数据保护期更长</strong>：即使密码后来泄露，之前的数据仍然安全</li>
+                        <li><strong>降低攻击影响范围</strong>：一次密钥泄露只影响当前会话</li>
+                        <li><strong>符合隐私保护原则</strong>：历史通信应该保持私密</li>
+                    </ol>
+                    
+                    <p><strong>最佳实践：升级到WPA3可以获得更强的前向保密性。</strong></p>
+                """,
+            },
+        }
+
+    def get_derivation_info_basic(self, pmk_hex: str, ap_mac: str, client_mac: str,
+                                   anonce: str, snonce: str,
+                                   detail_level: str = "basic") -> Dict:
+        """渐进式密钥推导信息展示"""
+        basic = {
+            "success": True,
+            "pmk_preview": pmk_hex[:16] + "..." + pmk_hex[-8:],
+            "ptk_length": "48字节 (384位)",
+            "algorithm": "PBKDF2 → PRF-SHA1",
+        }
+        
+        if detail_level == "basic":
+            return basic
+        
+        ptk_result = self.get_prf_detail(pmk_hex, ap_mac, client_mac, anonce, snonce)
+        detailed = {
+            **basic,
+            "ap_mac": ap_mac,
+            "client_mac": client_mac,
+            "anonce_preview": anonce[:16] + "...",
+            "snonce_preview": snonce[:16] + "...",
+            "ptk_preview": ptk_result["ptk"][:32] + "...",
+            "key_components": ["KCK (16B)", "KEK (16B)", "TK (16B)"],
+        }
+        
+        if detail_level == "detailed":
+            return detailed
+        
+        decomposed = self.decompose_ptk(ptk_result["ptk"])
+        full = {
+            **detailed,
+            "pbkdf2_steps": self.get_pbkdf2_detail("********", "TestSSID")["steps"],
+            "prf_steps": ptk_result["steps"],
+            "decomposed_keys": decomposed,
+            "derivation_chain": self.get_derivation_chain(),
+            "security_explanations": self.get_key_security_explanations(),
+        }
+        
+        return full
+
 
 # 创建全局实例
 _handshake_simulator = None
