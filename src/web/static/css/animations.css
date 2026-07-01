@@ -1,0 +1,467 @@
+/* WiFi可视化安全学习工具 v2 - 动画与特效 */
+
+/* === 基础动画 === */
+
+/* 脉冲动画 */
+@keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.7; transform: scale(1.02); }
+}
+
+.animate-pulse {
+    animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* 发光脉冲 */
+@keyframes glow-pulse {
+    0%, 100% { box-shadow: 0 0 5px currentColor, 0 0 10px currentColor; }
+    50% { box-shadow: 0 0 15px currentColor, 0 0 25px currentColor; }
+}
+
+.animate-glow {
+    animation: glow-pulse 2s ease-in-out infinite;
+}
+
+/* 淡入 */
+@keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+}
+
+.animate-fade-in {
+    animation: fadeIn 0.3s ease-out;
+}
+
+/* 滑入（从左） */
+@keyframes slideInLeft {
+    from { transform: translateX(-100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in-left {
+    animation: slideInLeft 0.5s ease-out;
+}
+
+/* 滑入（从右） */
+@keyframes slideInRight {
+    from { transform: translateX(100%); opacity: 0; }
+    to { transform: translateX(0); opacity: 1; }
+}
+
+.animate-slide-in-right {
+    animation: slideInRight 0.5s ease-out;
+}
+
+/* 滑入（从上） */
+@keyframes slideInDown {
+    from { transform: translateY(-20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-in-down {
+    animation: slideInDown 0.3s ease-out;
+}
+
+/* 滑入（从下） */
+@keyframes slideInUp {
+    from { transform: translateY(20px); opacity: 0; }
+    to { transform: translateY(0); opacity: 1; }
+}
+
+.animate-slide-in-up {
+    animation: slideInUp 0.3s ease-out;
+}
+
+/* 旋转 */
+@keyframes spin {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.animate-spin {
+    animation: spin 1s linear infinite;
+}
+
+/* 弹跳 */
+@keyframes bounce {
+    0%, 100% { transform: translateY(0); }
+    50% { transform: translateY(-5px); }
+}
+
+.animate-bounce {
+    animation: bounce 1s ease-in-out infinite;
+}
+
+/* 扫描线效果 */
+@keyframes scanline {
+    0% { top: -10%; }
+    100% { top: 110%; }
+}
+
+.scanline::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    width: 100%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, #00fff5, transparent);
+    animation: scanline 3s linear infinite;
+    pointer-events: none;
+}
+
+/* 打字机效果 */
+@keyframes typing {
+    from { width: 0; }
+    to { width: 100%; }
+}
+
+.typewriter {
+    overflow: hidden;
+    white-space: nowrap;
+    animation: typing 2s steps(40, end);
+}
+
+/* 光标闪烁 */
+@keyframes blink {
+    0%, 100% { opacity: 1; }
+    50% { opacity: 0; }
+}
+
+.cursor-blink::after {
+    content: '|';
+    animation: blink 1s step-end infinite;
+    color: var(--accent-cyan);
+}
+
+/* === 霓虹文字效果 === */
+
+.neon-text {
+    text-shadow:
+        0 0 5px currentColor,
+        0 0 10px currentColor,
+        0 0 20px currentColor,
+        0 0 40px currentColor;
+}
+
+.neon-text-cyan {
+    color: #00fff5;
+    text-shadow:
+        0 0 5px #00fff5,
+        0 0 10px #00fff5,
+        0 0 20px #00fff5;
+}
+
+.neon-text-magenta {
+    color: #ff00ff;
+    text-shadow:
+        0 0 5px #ff00ff,
+        0 0 10px #ff00ff,
+        0 0 20px #ff00ff;
+}
+
+.neon-text-orange {
+    color: #ff6600;
+    text-shadow:
+        0 0 5px #ff6600,
+        0 0 10px #ff6600,
+        0 0 20px #ff6600;
+}
+
+/* === 玻璃态效果 === */
+
+.glass {
+    background: rgba(26, 26, 46, 0.6);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border: 1px solid rgba(0, 255, 245, 0.2);
+}
+
+.glass-heavy {
+    background: rgba(10, 10, 26, 0.8);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border: 1px solid rgba(0, 255, 245, 0.3);
+}
+
+/* === 边框发光效果 === */
+
+.glow-border {
+    position: relative;
+    border: 2px solid var(--accent-cyan);
+    transition: all 0.3s;
+}
+
+.glow-border::before {
+    content: '';
+    position: absolute;
+    top: -2px;
+    left: -2px;
+    right: -2px;
+    bottom: -2px;
+    border: 2px solid transparent;
+    transition: all 0.3s;
+    pointer-events: none;
+}
+
+.glow-border:hover::before {
+    border-color: var(--accent-cyan);
+    filter: blur(5px);
+}
+
+/* === 渐变边框 === */
+
+.gradient-border {
+    position: relative;
+    background: var(--bg-medium);
+}
+
+.gradient-border::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    border-radius: inherit;
+    padding: 2px;
+    background: linear-gradient(135deg, #00fff5, #ff00ff, #00fff5);
+    -webkit-mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    mask: 
+        linear-gradient(#fff 0 0) content-box, 
+        linear-gradient(#fff 0 0);
+    -webkit-mask-composite: xor;
+    mask-composite: exclude;
+    pointer-events: none;
+}
+
+/* === 卡片悬浮效果 === */
+
+.card-hover {
+    transition: all 0.3s ease;
+}
+
+.card-hover:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 10px 30px rgba(0, 255, 245, 0.2);
+}
+
+/* === 按钮波纹效果 === */
+
+.ripple {
+    position: relative;
+    overflow: hidden;
+}
+
+.ripple::after {
+    content: '';
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    width: 0;
+    height: 0;
+    background: rgba(0, 255, 245, 0.3);
+    border-radius: 50%;
+    transform: translate(-50%, -50%);
+    transition: width 0.3s, height 0.3s;
+}
+
+.ripple:active::after {
+    width: 200px;
+    height: 200px;
+}
+
+/* === 数据流动效果 === */
+
+@keyframes dataFlow {
+    0% { background-position: 0% 50%; }
+    100% { background-position: 200% 50%; }
+}
+
+.data-flow {
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(0, 255, 245, 0.3),
+        transparent
+    );
+    background-size: 50% 100%;
+    animation: dataFlow 2s linear infinite;
+}
+
+/* === 闪烁警告 === */
+
+@keyframes warningBlink {
+    0%, 100% { background-color: rgba(255, 102, 0, 0.1); }
+    50% { background-color: rgba(255, 102, 0, 0.3); }
+}
+
+.warning-blink {
+    animation: warningBlink 1s ease-in-out infinite;
+}
+
+/* === 进度条流动 === */
+
+@keyframes progressFlow {
+    0% { transform: translateX(-100%); }
+    100% { transform: translateX(400%); }
+}
+
+.progress-animated::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: linear-gradient(
+        90deg,
+        transparent,
+        rgba(255, 255, 255, 0.3),
+        transparent
+    );
+    animation: progressFlow 1.5s linear infinite;
+}
+
+/* === 粒子上升效果 === */
+
+@keyframes floatUp {
+    0% { transform: translateY(0); opacity: 0; }
+    50% { opacity: 1; }
+    100% { transform: translateY(-50px); opacity: 0; }
+}
+
+.float-particle {
+    animation: floatUp 3s ease-out infinite;
+}
+
+/* === 呼吸灯效果 === */
+
+@keyframes breathing {
+    0%, 100% {
+        box-shadow: 0 0 5px currentColor,
+                    0 0 10px currentColor;
+        opacity: 0.8;
+    }
+    50% {
+        box-shadow: 0 0 10px currentColor,
+                    0 0 20px currentColor,
+                    0 0 30px currentColor;
+        opacity: 1;
+    }
+}
+
+.breathing {
+    animation: breathing 3s ease-in-out infinite;
+}
+
+/* === 页面过渡 === */
+
+.page-enter {
+    opacity: 0;
+    transform: translateX(20px);
+}
+
+.page-enter-active {
+    opacity: 1;
+    transform: translateX(0);
+    transition: all 0.3s ease-out;
+}
+
+.page-exit {
+    opacity: 1;
+    transform: translateX(0);
+}
+
+.page-exit-active {
+    opacity: 0;
+    transform: translateX(-20px);
+    transition: all 0.3s ease-in;
+}
+
+/* === 加载动画 === */
+
+.loading-dots span {
+    display: inline-block;
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: var(--accent-cyan);
+    margin: 0 2px;
+    animation: loadingBounce 1.4s ease-in-out infinite both;
+}
+
+.loading-dots span:nth-child(1) { animation-delay: -0.32s; }
+.loading-dots span:nth-child(2) { animation-delay: -0.16s; }
+
+@keyframes loadingBounce {
+    0%, 80%, 100% {
+        transform: scale(0);
+    }
+    40% {
+        transform: scale(1);
+    }
+}
+
+/* === 数字计数器动画 === */
+
+@keyframes countUp {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+}
+
+.count-up {
+    animation: countUp 0.5s ease-out;
+}
+
+/* === 雷达扫描 === */
+
+@keyframes radarScan {
+    from { transform: rotate(0deg); }
+    to { transform: rotate(360deg); }
+}
+
+.radar-scan {
+    animation: radarScan 3s linear infinite;
+    transform-origin: center;
+}
+
+/* === 延迟类 === */
+
+.delay-100 { animation-delay: 0.1s; }
+.delay-200 { animation-delay: 0.2s; }
+.delay-300 { animation-delay: 0.3s; }
+.delay-400 { animation-delay: 0.4s; }
+.delay-500 { animation-delay: 0.5s; }
+
+.duration-fast { animation-duration: 0.2s; }
+.duration-normal { animation-duration: 0.5s; }
+.duration-slow { animation-duration: 1s; }
+
+/* === 交互效果 === */
+
+.hover-lift {
+    transition: transform 0.2s, box-shadow 0.2s;
+}
+
+.hover-lift:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 5px 20px rgba(0, 255, 245, 0.3);
+}
+
+.hover-underline {
+    position: relative;
+}
+
+.hover-underline::after {
+    content: '';
+    position: absolute;
+    bottom: -2px;
+    left: 0;
+    width: 0;
+    height: 2px;
+    background: currentColor;
+    transition: width 0.3s;
+}
+
+.hover-underline:hover::after {
+    width: 100%;
+}

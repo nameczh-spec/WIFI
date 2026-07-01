@@ -1,0 +1,1214 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>WiFi可视化安全学习工具 v2.0</title>
+
+    <!-- ECharts -->
+    <script src="https://cdn.jsdelivr.net/npm/echarts@5.4.3/dist/echarts.min.js"></script>
+
+    <!-- 样式 -->
+    <link rel="stylesheet" href="/static/css/style.css">
+    <link rel="stylesheet" href="/static/css/icons.css">
+    <link rel="stylesheet" href="/static/css/animations.css">
+    <link rel="stylesheet" href="/static/css/handshake.css">
+    <link rel="stylesheet" href="/static/css/wep_practice.css">
+    <link rel="stylesheet" href="/static/css/attack_styles.css">
+</head>
+<body>
+    <!-- 动态背景 -->
+    <canvas id="bg-canvas"></canvas>
+
+    <!-- 主容器 -->
+    <div id="app">
+        <!-- 左侧导航 -->
+        <nav class="sidebar">
+            <div class="logo">
+                <h1>WiFi安全</h1>
+                <p>可视化学习平台</p>
+            </div>
+
+            <ul class="nav-menu">
+                <li class="nav-item active" data-page="home">
+                    <span class="icon">🏠</span>
+                    <span>首页</span>
+                </li>
+                <li class="nav-item" data-page="scan">
+                    <span class="icon">📡</span>
+                    <span>WiFi扫描</span>
+                </li>
+                <li class="nav-item" data-page="visualization">
+                    <span class="icon">📊</span>
+                    <span>数据可视化</span>
+                </li>
+                <li class="nav-item" data-page="learning">
+                    <span class="icon">📚</span>
+                    <span>教学模式</span>
+                </li>
+                <li class="nav-item" data-page="security">
+                    <span class="icon">🔒</span>
+                    <span>安全评估</span>
+                </li>
+                <li class="nav-item" data-page="ai">
+                    <span class="icon">🤖</span>
+                    <span>AI助手</span>
+                </li>
+                <li class="nav-item" data-page="attack">
+                    <span class="icon">⚔️</span>
+                    <span>攻防演练</span>
+                </li>
+                <li class="nav-item" data-page="settings">
+                    <span class="icon">⚙️</span>
+                    <span>设置</span>
+                </li>
+            </ul>
+
+            <div class="status-bar">
+                <div class="status-item">
+                    <span class="label">温和模式</span>
+                    <span class="value status-on">开启</span>
+                </div>
+            </div>
+        </nav>
+
+        <!-- 主内容区 -->
+        <main class="main-content">
+            <!-- 首页 -->
+            <section id="page-home" class="page active">
+                <div class="hero">
+                    <h1>WiFi可视化安全学习平台</h1>
+                    <p class="subtitle">具有科幻风格界面的WiFi安全可视化学习工具</p>
+                </div>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>WiFi扫描</h3>
+                        <p>被动扫描周边WiFi网络</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>教学模式</h3>
+                        <p>加密原理、握手过程、漏洞分析</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>安全评估</h3>
+                        <p>评估自有网络安全</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>AI助手</h3>
+                        <p>智能问答、学习指导</p>
+                    </div>
+                </div>
+
+                <div class="warning-banner">
+                    ⚠ 注意：所有功能仅用于学习研究，请遵守法律法规
+                </div>
+            </section>
+
+            <!-- WiFi扫描页 -->
+            <section id="page-scan" class="page">
+                <h2>WiFi网络扫描</h2>
+
+                <div class="chart-container">
+                    <div id="chart-signal" class="chart"></div>
+                </div>
+
+                <div class="scan-controls">
+                    <button id="btn-scan" class="cyber-btn">开始扫描</button>
+                </div>
+
+                <div class="scan-results">
+                    <table id="wifi-table" class="data-table">
+                        <thead>
+                            <tr>
+                                <th>SSID</th>
+                                <th>BSSID</th>
+                                <th>信号</th>
+                                <th>加密方式</th>
+                                <th>信道</th>
+                            </tr>
+                        </thead>
+                        <tbody id="wifi-list">
+                            <tr>
+                                <td colspan="5" class="empty">点击"开始扫描"搜索WiFi网络</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            <!-- 数据可视化页 -->
+            <section id="page-visualization" class="page">
+                <h2 class="page-title">数据可视化中心</h2>
+                <p class="subtitle">真实有用的WiFi安全数据分析图表</p>
+
+                <!-- 图表选择器 -->
+                <div class="visual-tabs">
+                    <button class="tab-btn active" data-chart="encryption">加密方式分布</button>
+                    <button class="tab-btn" data-chart="channel">信道分布分析</button>
+                    <button class="tab-btn" data-chart="handshake">握手过程模拟</button>
+                    <button class="tab-btn" data-chart="traffic">流量监控模拟</button>
+                    <button class="tab-btn" data-chart="password">密码强度分析</button>
+                </div>
+
+                <!-- 图表区域 -->
+                <div class="visual-content">
+                    <!-- 加密方式分布 -->
+                    <div id="chart-encryption" class="chart-panel active">
+                        <div class="cyber-card corner-decoration">
+                            <h3>周边网络加密方式分布</h3>
+                            <p class="card-desc">了解周边网络的安全状况，不同加密方式的安全性对比</p>
+                            <div id="echart-encryption" class="chart-large"></div>
+                            <div class="chart-legend-info">
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background:#00ff00"></span>
+                                    <span>WPA3 - 最安全</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background:#00fff5"></span>
+                                    <span>WPA2 - 安全</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background:#ffcc00"></span>
+                                    <span>WPA - 一般</span>
+                                </div>
+                                <div class="legend-item">
+                                    <span class="legend-dot" style="background:#ff3333"></span>
+                                    <span>WEP - 危险</span>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 信道分布 -->
+                    <div id="chart-channel" class="chart-panel">
+                        <div class="cyber-card corner-decoration">
+                            <h3>WiFi信道分布分析</h3>
+                            <p class="card-desc">分析各信道的网络数量，帮助优化自己的WiFi信道选择</p>
+                            <div id="echart-channel" class="chart-large"></div>
+                            <div class="tips-box">
+                                <p><strong>💡 提示：</strong>2.4GHz推荐使用1、6、11三个互不重叠的信道；5GHz信道更多，干扰更少。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 握手过程模拟 -->
+                    <div id="chart-handshake" class="chart-panel">
+                        <div class="cyber-card corner-decoration">
+                            <h3>WPA四次握手过程模拟</h3>
+                            <p class="card-desc">可视化学习WPA认证的四次握手过程，理解密钥交换机制</p>
+
+                            <div class="handshake-controls">
+                                <button id="btn-handshake-reset" class="cyber-btn small">重置</button>
+                                <button id="btn-handshake-next" class="cyber-btn small primary">下一步</button>
+                                <button id="btn-handshake-auto" class="cyber-btn small">自动播放</button>
+                            </div>
+
+                            <div id="echart-handshake" class="chart-large"></div>
+
+                            <div class="handshake-detail" id="handshake-detail">
+                                <p>点击"下一步"开始模拟WPA四次握手过程</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 流量监控模拟 -->
+                    <div id="chart-traffic" class="chart-panel">
+                        <div class="cyber-card corner-decoration">
+                            <h3>网络流量监控 (正常 vs 攻击)</h3>
+                            <p class="card-desc">对比正常流量和攻击流量的差异，学习入侵检测基础</p>
+
+                            <div class="traffic-controls">
+                                <button id="btn-traffic-start" class="cyber-btn small">开始采集</button>
+                                <button id="btn-traffic-attack" class="cyber-btn small danger">模拟攻击</button>
+                                <button id="btn-traffic-stop" class="cyber-btn small">停止</button>
+                            </div>
+
+                            <div id="echart-traffic" class="chart-large"></div>
+
+                            <div class="tips-box">
+                                <p><strong>📚 学习要点：</strong>DDoS攻击会导致流量突增，正常流量相对平稳。通过监控流量异常可以发现潜在攻击。</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 密码强度分析 -->
+                    <div id="chart-password" class="chart-panel">
+                        <div class="cyber-card corner-decoration">
+                            <h3>密码强度分项分析</h3>
+                            <p class="card-desc">从多个维度分析密码强度，找出弱点并改进</p>
+
+                            <div class="password-input-row">
+                                <input type="password" id="pwd-analyze-input" placeholder="输入要分析的密码..." class="cyber-input">
+                                <button id="btn-analyze-pwd" class="cyber-btn">分析</button>
+                            </div>
+
+                            <div id="echart-password" class="chart-large"></div>
+
+                            <div class="tips-box">
+                                <p><strong>🔐 强密码建议：</strong>长度≥12位，包含大小写字母、数字和特殊字符，避免常见词汇和个人信息。</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 教学模式页 -->
+            <section id="page-learning" class="page">
+                <h2>教学模式 - WiFi安全学习</h2>
+
+                <div class="teaching-security-warning">
+                    ⚠ 安全警告：本平台所有内容仅供学习研究使用，请勿用于非法用途。使用本平台进行的任何活动必须遵守当地法律法规。
+                </div>
+
+                <div class="teaching-layout">
+                    <div class="teaching-sidebar">
+                        <div class="cyber-card corner-decoration">
+                            <h3>学习模块</h3>
+                            <p class="card-desc">选择模块开始学习</p>
+                            <div id="module-list" class="module-list">
+                                <div class="empty-state">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="teaching-content">
+                        <div class="cyber-card corner-decoration">
+                            <div class="teaching-header">
+                                <div class="teaching-module-title">
+                                    <h3 id="current-module-title">选择左侧模块开始学习</h3>
+                                    <span id="current-module-difficulty" class="cyber-tag tag-info">--</span>
+                                </div>
+                                <div class="teaching-progress-info">
+                                    <span>进度: <span id="progress-text">0%</span></span>
+                                </div>
+                            </div>
+                            <div class="cyber-progress">
+                                <div id="teaching-progress-bar" class="progress-bar" style="width: 0%"></div>
+                            </div>
+                        </div>
+
+                        <div class="cyber-card corner-decoration">
+                            <div id="step-content" class="step-content">
+                                <div class="empty-state">
+                                    <p>👈 请从左侧选择一个学习模块开始</p>
+                                    <p style="margin-top: 10px; color: var(--text-secondary);">系统将引导您逐步学习WiFi安全知识</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="cyber-card corner-decoration">
+                            <div id="quiz-section" class="quiz-section" style="display: none;">
+                                <h4>📝 章节测验</h4>
+                                <div id="quiz-question" class="quiz-question"></div>
+                                <div id="quiz-options" class="quiz-options"></div>
+                                <div id="quiz-result" class="quiz-result" style="display: none;"></div>
+                                <button id="btn-submit-quiz" class="cyber-btn small primary" style="display: none;">提交答案</button>
+                                <button id="btn-next-after-quiz" class="cyber-btn small" style="display: none;">继续学习</button>
+                            </div>
+
+                            <div class="step-navigation">
+                                <button id="btn-prev-step" class="cyber-btn small" disabled>
+                                    ← 上一步
+                                </button>
+                                <span id="step-indicator" class="step-indicator">-- / --</span>
+                                <button id="btn-next-step" class="cyber-btn small primary" disabled>
+                                    下一步 →
+                                </button>
+                            </div>
+                        </div>
+
+                        <div class="learning-tip">
+                            ⚠ 仅供学习研究使用
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 安全评估页 -->
+            <section id="page-security" class="page">
+                <h2>自有网络安全评估</h2>
+
+                <div class="eval-form">
+                    <div class="form-group">
+                        <label>网络名称 (SSID)</label>
+                        <input type="text" id="eval-ssid" class="cyber-input" placeholder="输入WiFi名称">
+                    </div>
+
+                    <div class="form-group">
+                        <label>WiFi密码</label>
+                        <input type="password" id="eval-password" class="cyber-btn-input" placeholder="输入密码">
+                    </div>
+
+                    <div class="form-group">
+                        <label>加密方式</label>
+                        <select id="eval-encryption" class="cyber-select">
+                            <option value="WPA2-PSK">WPA2-PSK</option>
+                            <option value="WPA-PSK">WPA-PSK</option>
+                            <option value="WEP">WEP</option>
+                        </select>
+                    </div>
+
+                    <button id="btn-evaluate" class="cyber-btn">开始评估</button>
+                </div>
+
+                <div class="eval-results">
+                    <div id="chart-security" class="chart"></div>
+                    <div id="eval-report" class="report"></div>
+                </div>
+            </section>
+
+            <!-- AI助手页 -->
+            <section id="page-ai" class="page">
+                <div class="ai-page-header">
+                    <h2>AI学习助手</h2>
+                    <button id="btn-learning-path" class="cyber-btn small primary">
+                        📚 学习路径推荐
+                    </button>
+                </div>
+
+                <div id="ai-status" class="ai-status">
+                    请先在设置中配置AI API密钥
+                </div>
+
+                <div class="ai-layout">
+                    <div class="ai-sidebar">
+                        <div class="cyber-card corner-decoration">
+                            <h3>选择场景</h3>
+                            <p class="card-desc">选择AI助手的角色模式</p>
+                            <div id="scenario-list" class="scenario-list">
+                                <div class="empty-state">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="ai-chat-area">
+                        <div class="cyber-card corner-decoration chat-main-card">
+                            <div class="chat-header">
+                                <div class="chat-scenario-info">
+                                    <span id="current-scenario-icon" class="scenario-icon">🤖</span>
+                                    <div>
+                                        <h3 id="current-scenario-name">通用问答</h3>
+                                        <p id="current-scenario-desc" class="card-desc">有问必答的WiFi安全助手</p>
+                                    </div>
+                                </div>
+                                <button id="btn-clear-history" class="cyber-btn small" title="清空对话历史">
+                                    🗑️ 清空历史
+                                </button>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <div id="chat-messages" class="chat-messages">
+                                <div class="message ai-message">
+                                    <span class="avatar">🤖</span>
+                                    <div class="message-content">
+                                        <p>你好！我是你的WiFi安全学习助手。选择左侧场景开始专属对话，或直接提问吧！</p>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="chat-input-container">
+                                <textarea id="chat-input" class="cyber-input chat-textarea" placeholder="输入您的问题... (Enter发送，Shift+Enter换行)"></textarea>
+                                <button id="btn-send" class="cyber-btn primary send-btn">
+                                    <span class="btn-text">发送</span>
+                                    <span class="btn-loading" style="display:none;">发送中...</span>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 学习路径弹窗 -->
+            <div id="learning-path-modal" class="modal-overlay" style="display:none;">
+                <div class="modal-content cyber-card corner-decoration">
+                    <div class="modal-header">
+                        <h3>📚 个性化学习路径推荐</h3>
+                        <button id="btn-close-modal" class="modal-close">&times;</button>
+                    </div>
+                    <div class="modal-body">
+                        <div class="level-selector">
+                            <p>请选择你的当前水平：</p>
+                            <div class="level-buttons">
+                                <button class="level-btn active" data-level="beginner">🌱 初学者</button>
+                                <button class="level-btn" data-level="intermediate">📖 进阶者</button>
+                                <button class="level-btn" data-level="advanced">⚡ 高级</button>
+                            </div>
+                        </div>
+                        <div id="learning-path-content" class="learning-path-content">
+                            <div class="empty-state">点击上方按钮生成学习路径</div>
+                        </div>
+                    </div>
+                    <div class="modal-footer">
+                        <button id="btn-generate-path" class="cyber-btn primary">生成学习路径</button>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 攻防演练页 -->
+            <section id="page-attack" class="page">
+                <h2>攻防演练系统</h2>
+
+                <div class="teaching-security-warning">
+                    ⚠ 安全警告：本平台所有内容仅供学习研究使用，请勿用于非法用途。使用本平台进行的任何活动必须遵守当地法律法规。
+                </div>
+
+                <div class="practice-tabs">
+                    <button class="practice-tab-btn active" data-tab="handshake">握手模拟</button>
+                    <button class="practice-tab-btn" data-tab="wep">WEP练习</button>
+                    <button class="practice-tab-btn" data-tab="scenarios">攻击场景</button>
+                    <button class="practice-tab-btn" data-tab="defense">防御加固</button>
+                </div>
+
+                <div class="practice-tab-content">
+                    <div id="practice-tab-handshake" class="practice-tab-panel active">
+                        <div class="handshake-sim-layout">
+                            <div class="handshake-left-panel">
+                                <div class="cyber-card corner-decoration">
+                                    <h3>📚 课程列表</h3>
+                                    <p class="card-desc">选择课程开始学习</p>
+                                    <div id="handshake-lesson-list" class="handshake-lesson-list">
+                                        <div class="empty-state">加载中...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="handshake-center-panel">
+                                <div class="cyber-card corner-decoration">
+                                    <div class="handshake-header">
+                                        <h3>🔄 WPA四次握手可视化</h3>
+                                        <span id="handshake-step-indicator" class="cyber-tag tag-info">0 / 4</span>
+                                    </div>
+                                    <p class="card-desc">AP与客户端之间的密钥协商过程</p>
+
+                                    <div id="handshake-visual" class="handshake-visual">
+                                        <div class="handshake-device ap-side">
+                                            <div class="device-icon">📡</div>
+                                            <div class="device-label">AP (接入点)</div>
+                                            <div class="device-mac" id="ap-mac-display">AA:BB:CC:DD:EE:FF</div>
+                                        </div>
+
+                                        <div class="handshake-messages">
+                                            <div class="handshake-msg msg-1" data-step="1">
+                                                <div class="msg-arrow ap-to-client">
+                                                    <span class="msg-label">Msg 1</span>
+                                                </div>
+                                                <div class="msg-title">ANonce</div>
+                                            </div>
+                                            <div class="handshake-msg msg-2" data-step="2">
+                                                <div class="msg-arrow client-to-ap">
+                                                    <span class="msg-label">Msg 2</span>
+                                                </div>
+                                                <div class="msg-title">SNonce + MIC</div>
+                                            </div>
+                                            <div class="handshake-msg msg-3" data-step="3">
+                                                <div class="msg-arrow ap-to-client">
+                                                    <span class="msg-label">Msg 3</span>
+                                                </div>
+                                                <div class="msg-title">GTK + MIC</div>
+                                            </div>
+                                            <div class="handshake-msg msg-4" data-step="4">
+                                                <div class="msg-arrow client-to-ap">
+                                                    <span class="msg-label">Msg 4</span>
+                                                </div>
+                                                <div class="msg-title">ACK + MIC</div>
+                                            </div>
+                                        </div>
+
+                                        <div class="handshake-device client-side">
+                                            <div class="device-icon">💻</div>
+                                            <div class="device-label">Client (客户端)</div>
+                                            <div class="device-mac" id="client-mac-display">11:22:33:44:55:66</div>
+                                        </div>
+                                    </div>
+
+                                    <div class="handshake-controls">
+                                        <button id="btn-handshake-start" class="cyber-btn small primary">开始</button>
+                                        <button id="btn-handshake-next" class="cyber-btn small">下一步</button>
+                                        <button id="btn-handshake-reset" class="cyber-btn small">重置</button>
+                                        <button id="btn-handshake-auto" class="cyber-btn small">自动播放</button>
+                                    </div>
+
+                                    <div class="learning-tip">
+                                        ⚠ 仅供学习研究使用
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="handshake-right-panel">
+                                <div class="cyber-card corner-decoration">
+                                    <h3>📋 步骤详情</h3>
+                                    <div id="handshake-detail-panel" class="handshake-detail-panel">
+                                        <div class="empty-state">
+                                            <p>点击"开始"按钮启动握手模拟</p>
+                                            <p style="margin-top: 10px; color: var(--text-secondary);">系统将逐步展示WPA四次握手的完整过程</p>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="cyber-card corner-decoration">
+                                    <h3>🔑 密钥派生过程</h3>
+                                    <div id="key-derivation-panel" class="key-derivation-panel">
+                                        <div class="key-derivation-step">
+                                            <div class="key-level">
+                                                <span class="key-name">密码 (PSK)</span>
+                                                <span class="key-status key-status-wait" id="key-status-psk">等待中</span>
+                                            </div>
+                                        </div>
+                                        <div class="key-arrow">↓</div>
+                                        <div class="key-derivation-step">
+                                            <div class="key-level">
+                                                <span class="key-name">PMK</span>
+                                                <span class="key-status key-status-wait" id="key-status-pmk">等待中</span>
+                                            </div>
+                                            <div class="key-algo" id="key-algo-pmk" style="display:none;">PBKDF2-HMAC-SHA1</div>
+                                        </div>
+                                        <div class="key-arrow">↓</div>
+                                        <div class="key-derivation-step">
+                                            <div class="key-level">
+                                                <span class="key-name">PTK</span>
+                                                <span class="key-status key-status-wait" id="key-status-ptk">等待中</span>
+                                            </div>
+                                            <div class="key-algo" id="key-algo-ptk" style="display:none;">PRF-SHA1</div>
+                                            <div class="key-parts" id="key-parts-ptk" style="display:none;">
+                                                <span class="key-part">KCK</span>
+                                                <span class="key-part">KEK</span>
+                                                <span class="key-part">TK</span>
+                                            </div>
+                                        </div>
+                                        <div class="key-arrow">↓</div>
+                                        <div class="key-derivation-step">
+                                            <div class="key-level">
+                                                <span class="key-name">GTK</span>
+                                                <span class="key-status key-status-wait" id="key-status-gtk">等待中</span>
+                                            </div>
+                                            <div class="key-algo" id="key-algo-gtk" style="display:none;">随机生成</div>
+                                        </div>
+                                    </div>
+                                </div>
+
+                                <div class="cyber-card corner-decoration" id="packet-structure-card" style="display:none;">
+                                    <h3>📦 数据包结构</h3>
+                                    <div id="packet-structure-panel" class="packet-structure-panel">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    <div id="practice-tab-scenarios" class="practice-tab-panel">
+                        <!-- 分类标签 -->
+                <div class="attack-categories">
+                    <button class="category-tab active" data-category="all">全部</button>
+                    <button class="category-tab" data-category="wep">WEP攻击</button>
+                    <button class="category-tab" data-category="wpa">WPA攻击</button>
+                    <button class="category-tab" data-category="dos">DoS攻击</button>
+                    <button class="category-tab" data-category="evil_twin">邪恶双生子</button>
+                    <button class="category-tab" data-category="krack">KRACK</button>
+                </div>
+
+                <!-- 主体布局 -->
+                <div class="attack-layout">
+                    <!-- 左侧：场景列表 -->
+                    <div class="attack-sidebar">
+                        <div class="cyber-card corner-decoration">
+                            <h3>攻击场景列表</h3>
+                            <p class="card-desc">选择场景查看详情</p>
+                            <div id="scenario-list" class="scenario-list">
+                                <div class="empty-state">加载中...</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 右侧：场景详情 -->
+                    <div class="attack-content">
+                        <!-- 场景详情卡片 -->
+                        <div class="cyber-card corner-decoration">
+                            <div class="scenario-header">
+                                <div class="scenario-title-section">
+                                    <h3 id="scenario-title">选择左侧场景开始学习</h3>
+                                    <span id="scenario-category" class="cyber-tag tag-info">--</span>
+                                </div>
+                                <div class="scenario-meta">
+                                    <span id="scenario-difficulty" class="cyber-tag tag-warning">难度: --</span>
+                                </div>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <div id="scenario-detail" class="scenario-detail">
+                                <div class="empty-state">
+                                    <p>👈 请从左侧选择一个攻击场景</p>
+                                    <p style="margin-top: 10px; color: var(--text-secondary);">系统将展示攻击原理、步骤、影响及防御方法</p>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- 模拟演练区 -->
+                        <div class="cyber-card corner-decoration">
+                            <div class="simulation-header">
+                                <h3>🎮 模拟演练</h3>
+                                <div class="simulation-controls">
+                                    <button id="btn-sim-start" class="cyber-btn small primary">开始模拟</button>
+                                    <button id="btn-sim-next" class="cyber-btn small" disabled>下一步</button>
+                                    <button id="btn-sim-reset" class="cyber-btn small" disabled>重置</button>
+                                </div>
+                            </div>
+
+                            <div class="simulation-progress">
+                                <div class="sim-step-indicator" id="sim-step-indicator">
+                                    <span class="sim-step">未开始</span>
+                                </div>
+                                <div class="cyber-progress">
+                                    <div id="sim-progress-bar" class="progress-bar" style="width: 0%"></div>
+                                </div>
+                            </div>
+
+                            <div class="simulation-area">
+                                <div id="simulation-log" class="simulation-log">
+                                    <div class="log-entry info">[系统] 等待开始模拟演练...</div>
+                                </div>
+                            </div>
+
+                            <div id="defense-tip" class="defense-tip" style="display: none;">
+                                <div class="defense-tip-header">
+                                    <span class="defense-icon">🛡️</span>
+                                    <strong>防御提示</strong>
+                                </div>
+                                <div id="defense-tip-content" class="defense-tip-content"></div>
+                            </div>
+                        </div>
+
+                        <!-- 防御方法汇总 -->
+                        <div class="cyber-card corner-decoration">
+                            <h3>🛡️ 防御方法汇总</h3>
+                            <p class="card-desc">针对此类攻击的全面防御策略</p>
+                            <div id="defense-summary" class="defense-summary">
+                                <div class="empty-state">选择场景后显示防御汇总</div>
+                            </div>
+                        </div>
+
+                        <div class="learning-tip">
+                            ⚠ 仅供学习研究使用
+                        </div>
+                    </div>
+                    </div>
+
+                    <div id="practice-tab-defense" class="practice-tab-panel">
+                        <div class="cyber-card corner-decoration">
+                            <h3>防御加固场景</h3>
+                            <p class="card-desc">学习如何加固WiFi安全</p>
+                            <div class="placeholder" style="padding: 60px 0; text-align: center; color: var(--text-secondary);">
+                                防御加固场景开发中...
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="practice-tab-wep" class="practice-tab-panel">
+                        <div class="wep-practice-layout">
+                            <div class="wep-left-panel">
+                                <div class="cyber-card corner-decoration">
+                                    <h3>🎮 练习控制</h3>
+                                    <p class="card-desc">控制WEP破解练习流程</p>
+                                    
+                                    <div class="wep-network-info" id="wep-network-info" style="display:none;">
+                                        <div class="info-row">
+                                            <span class="info-label">SSID:</span>
+                                            <span class="info-value mono" id="wep-ssid">--</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">BSSID:</span>
+                                            <span class="info-value mono" id="wep-bssid">--</span>
+                                        </div>
+                                        <div class="info-row">
+                                            <span class="info-label">加密:</span>
+                                            <span class="info-value">WEP</span>
+                                        </div>
+                                    </div>
+
+                                    <div class="wep-controls">
+                                        <button id="btn-wep-start" class="cyber-btn primary full-width">开始练习</button>
+                                        <button id="btn-wep-capture" class="cyber-btn full-width" disabled>捕获IV (1000)</button>
+                                        <button id="btn-wep-capture-fast" class="cyber-btn full-width" disabled>快速捕获 (10000)</button>
+                                        <button id="btn-wep-crack" class="cyber-btn warning full-width" disabled>尝试破解</button>
+                                        <button id="btn-wep-reset" class="cyber-btn full-width">重置</button>
+                                    </div>
+
+                                    <div class="wep-settings">
+                                        <div class="form-group">
+                                            <label>WEP密钥 (5/13字符)</label>
+                                            <input type="text" id="wep-key-input" class="cyber-input" value="abc123" maxlength="13">
+                                        </div>
+                                    </div>
+
+                                    <div class="learning-tip">
+                                        ⚠ 仅供学习研究使用
+                                    </div>
+                                </div>
+
+                                <div class="cyber-card corner-decoration">
+                                    <h3>📚 课程列表</h3>
+                                    <p class="card-desc">WEP安全知识学习</p>
+                                    <div id="wep-lesson-list" class="wep-lesson-list">
+                                        <div class="empty-state">加载中...</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="wep-center-panel">
+                                <div class="cyber-card corner-decoration">
+                                    <div class="wep-header">
+                                        <h3>📊 IV收集进度</h3>
+                                        <span id="wep-iv-count-badge" class="cyber-tag tag-info">0 / 50000</span>
+                                    </div>
+                                    <p class="card-desc">收集足够的IV是破解WEP的关键</p>
+
+                                    <div class="cyber-progress large">
+                                        <div id="wep-iv-progress-bar" class="progress-bar" style="width: 0%"></div>
+                                    </div>
+
+                                    <div class="wep-stats-grid">
+                                        <div class="stat-card">
+                                            <div class="stat-value" id="wep-total-ivs">0</div>
+                                            <div class="stat-label">总IV数</div>
+                                        </div>
+                                        <div class="stat-card weak">
+                                            <div class="stat-value" id="wep-weak-ivs">0</div>
+                                            <div class="stat-label">弱IV数</div>
+                                        </div>
+                                        <div class="stat-card">
+                                            <div class="stat-value" id="wep-crack-attempts">0</div>
+                                            <div class="stat-label">破解尝试</div>
+                                        </div>
+                                    </div>
+
+                                    <div id="wep-iv-chart" class="chart-medium"></div>
+                                </div>
+
+                                <div class="cyber-card corner-decoration">
+                                    <div class="wep-header">
+                                        <h3>🔓 破解进度</h3>
+                                        <span id="wep-crack-status" class="cyber-tag tag-warning">未开始</span>
+                                    </div>
+
+                                    <div class="cyber-progress">
+                                        <div id="wep-crack-progress-bar" class="progress-bar crack-bar" style="width: 0%"></div>
+                                    </div>
+
+                                    <div class="wep-key-display">
+                                        <div id="wep-key-bytes" class="key-bytes">
+                                            <span class="key-byte unknown">?</span>
+                                            <span class="key-byte unknown">?</span>
+                                            <span class="key-byte unknown">?</span>
+                                            <span class="key-byte unknown">?</span>
+                                            <span class="key-byte unknown">?</span>
+                                        </div>
+                                    </div>
+
+                                    <div id="wep-crack-steps" class="crack-steps">
+                                    </div>
+                                </div>
+
+                                <div class="cyber-card corner-decoration" id="wep-result-card" style="display:none;">
+                                    <div class="wep-result-header success">
+                                        <h3>🎉 破解成功 (教学演示)</h3>
+                                    </div>
+                                    <div class="wep-result-content">
+                                        <div class="result-row">
+                                            <span class="result-label">WEP密钥:</span>
+                                            <span class="result-value mono success" id="wep-cracked-key">--</span>
+                                        </div>
+                                        <div class="result-row">
+                                            <span class="result-label">使用IV数:</span>
+                                            <span class="result-value" id="wep-ivs-used">--</span>
+                                        </div>
+                                        <div class="result-row">
+                                            <span class="result-label">破解尝试:</span>
+                                            <span class="result-value" id="wep-crack-count">--</span>
+                                        </div>
+                                    </div>
+                                    <div class="wep-security-warning">
+                                        <strong>⚠️ 安全提示：</strong>WEP已被证明极度不安全，请立即升级到WPA2/WPA3。
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="wep-right-panel">
+                                <div class="cyber-card corner-decoration">
+                                    <div class="wep-lesson-header">
+                                        <h3>📖 教学内容</h3>
+                                        <div class="lesson-nav">
+                                            <button id="btn-wep-lesson-prev" class="cyber-btn small" disabled>上一课</button>
+                                            <span id="wep-lesson-indicator" class="cyber-tag tag-info">0 / 0</span>
+                                            <button id="btn-wep-lesson-next" class="cyber-btn small">下一课</button>
+                                        </div>
+                                    </div>
+                                    
+                                    <div id="wep-lesson-content" class="wep-lesson-content">
+                                        <div class="empty-state">
+                                            <p>选择左侧课程开始学习</p>
+                                            <p style="margin-top: 10px; color: var(--text-secondary);">系统将讲解WEP加密原理和安全缺陷</p>
+                                        </div>
+                                    </div>
+
+                                    <div id="wep-key-points" class="wep-key-points" style="display:none;">
+                                        <h4>🔑 关键点</h4>
+                                        <ul id="wep-key-points-list"></ul>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 设置页 -->
+            <section id="page-settings" class="page">
+                <h2 class="page-title">系统设置</h2>
+                <p class="subtitle">配置WiFi安全学习平台的各项参数</p>
+
+                <div class="settings-tabs">
+                    <button class="settings-tab-btn active" data-tab="general">
+                        <span class="tab-icon">⚙️</span>
+                        <span>通用设置</span>
+                    </button>
+                    <button class="settings-tab-btn" data-tab="data">
+                        <span class="tab-icon">💾</span>
+                        <span>数据管理</span>
+                    </button>
+                    <button class="settings-tab-btn" data-tab="ai">
+                        <span class="tab-icon">🤖</span>
+                        <span>AI设置</span>
+                    </button>
+                    <button class="settings-tab-btn" data-tab="auth">
+                        <span class="tab-icon">🔐</span>
+                        <span>双密码验证</span>
+                    </button>
+                    <button class="settings-tab-btn" data-tab="advanced">
+                        <span class="tab-icon">⚡</span>
+                        <span>高级授权</span>
+                    </button>
+                </div>
+
+                <div class="settings-tab-content">
+                    <!-- 通用设置 -->
+                    <div id="settings-tab-general" class="settings-tab-panel active">
+                        <div class="cyber-card corner-decoration">
+                            <h3>通用设置</h3>
+                            <p class="card-desc">配置平台的基础外观和行为</p>
+
+                            <div class="cyber-divider"></div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>主题</label>
+                                    <select id="setting-theme" class="cyber-select">
+                                        <option value="dark">深色主题</option>
+                                        <option value="cyber">科幻主题</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label>语言</label>
+                                    <select id="setting-language" class="cyber-select">
+                                        <option value="zh-CN">简体中文</option>
+                                        <option value="en">English</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>日志级别</label>
+                                    <select id="setting-log-level" class="cyber-select">
+                                        <option value="INFO">信息</option>
+                                        <option value="DEBUG">调试</option>
+                                        <option value="WARNING">警告</option>
+                                        <option value="ERROR">错误</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="setting-switch-row">
+                                <div class="setting-switch-info">
+                                    <h4>温和模式</h4>
+                                    <p>启用后限制所有功能为学习模式，确保安全合规</p>
+                                </div>
+                                <label class="cyber-switch">
+                                    <input type="checkbox" id="setting-gentle-mode" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <button id="btn-save-general" class="cyber-btn primary">保存通用设置</button>
+                        </div>
+                    </div>
+
+                    <!-- 数据管理 -->
+                    <div id="settings-tab-data" class="settings-tab-panel">
+                        <div class="cyber-card corner-decoration">
+                            <h3>数据管理</h3>
+                            <p class="card-desc">管理数据存储和清理策略</p>
+
+                            <div class="cyber-divider"></div>
+
+                            <div class="form-group">
+                                <label>数据存储路径</label>
+                                <div class="path-input-row">
+                                    <input type="text" id="setting-data-path" class="cyber-input" placeholder="输入数据存储路径">
+                                </div>
+                            </div>
+
+                            <div class="setting-switch-row">
+                                <div class="setting-switch-info">
+                                    <h4>自动清理</h4>
+                                    <p>自动清理过期的临时文件和缓存数据</p>
+                                </div>
+                                <label class="cyber-switch">
+                                    <input type="checkbox" id="setting-auto-cleanup" checked>
+                                    <span class="slider"></span>
+                                </label>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <h4 class="storage-section-title">存储空间</h4>
+
+                            <div class="storage-stats">
+                                <div class="storage-chart-container">
+                                    <div id="storage-chart" class="storage-chart"></div>
+                                </div>
+
+                                <div class="storage-info-list">
+                                    <div class="storage-info-item">
+                                        <span class="storage-dot" style="background: #00fff5;"></span>
+                                        <span class="storage-label">已使用</span>
+                                        <span class="storage-value" id="storage-used">--</span>
+                                    </div>
+                                    <div class="storage-info-item">
+                                        <span class="storage-dot" style="background: #ff00ff;"></span>
+                                        <span class="storage-label">总空间</span>
+                                        <span class="storage-value" id="storage-total">--</span>
+                                    </div>
+                                    <div class="storage-info-item">
+                                        <span class="storage-dot" style="background: #ffcc00;"></span>
+                                        <span class="storage-label">临时文件</span>
+                                        <span class="storage-value" id="storage-temp">--</span>
+                                    </div>
+                                    <div class="storage-info-item">
+                                        <span class="storage-dot" style="background: #00ff00;"></span>
+                                        <span class="storage-label">可用空间</span>
+                                        <span class="storage-value" id="storage-free">--</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <div class="cleanup-buttons">
+                                <button id="btn-cleanup-temp" class="cyber-btn">清理临时文件</button>
+                                <button id="btn-refresh-storage" class="cyber-btn small">刷新</button>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <button id="btn-save-data" class="cyber-btn primary">保存数据设置</button>
+                        </div>
+                    </div>
+
+                    <!-- AI设置 -->
+                    <div id="settings-tab-ai" class="settings-tab-panel">
+                        <div class="cyber-card corner-decoration">
+                            <h3>AI设置</h3>
+                            <p class="card-desc">配置AI助手的API参数</p>
+
+                            <div class="cyber-divider"></div>
+
+                            <div class="form-group">
+                                <label>API提供商</label>
+                                <select id="setting-ai-provider" class="cyber-select">
+                                    <option value="openai">OpenAI</option>
+                                    <option value="claude">Anthropic Claude</option>
+                                    <option value="custom">自定义API</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>模型</label>
+                                <select id="setting-ai-model" class="cyber-select">
+                                    <option value="gpt-4o-mini">gpt-4o-mini</option>
+                                </select>
+                            </div>
+
+                            <div class="form-group">
+                                <label>API地址</label>
+                                <input type="text" id="setting-ai-api-url" class="cyber-input" placeholder="https://api.openai.com/v1">
+                            </div>
+
+                            <div class="form-group">
+                                <label>API密钥</label>
+                                <div class="password-input-row">
+                                    <input type="password" id="setting-ai-api-key" class="cyber-input" placeholder="输入API密钥">
+                                    <button id="btn-toggle-api-key" class="cyber-btn small">显示</button>
+                                </div>
+                            </div>
+
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label>温度 (Temperature)</label>
+                                    <input type="number" id="setting-ai-temperature" class="cyber-input" value="0.7" step="0.1" min="0" max="2">
+                                </div>
+                                <div class="form-group">
+                                    <label>最大Token</label>
+                                    <input type="number" id="setting-ai-max-tokens" class="cyber-input" value="2000" min="100" max="100000">
+                                </div>
+                            </div>
+
+                            <div id="ai-test-result" class="test-result" style="display: none;"></div>
+
+                            <div class="cyber-divider"></div>
+
+                            <div class="action-buttons">
+                                <button id="btn-test-ai-connection" class="cyber-btn">测试连接</button>
+                                <button id="btn-save-ai-settings" class="cyber-btn primary">保存AI设置</button>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- 双密码验证 -->
+                    <div id="settings-tab-auth" class="settings-tab-panel">
+                        <div class="cyber-card corner-decoration">
+                            <h3>双密码验证</h3>
+                            <p class="card-desc">设置双重密码保护高级功能</p>
+
+                            <div class="cyber-divider"></div>
+
+                            <div class="auth-status-card">
+                                <div class="auth-status-icon" id="auth-status-icon">🔒</div>
+                                <div class="auth-status-info">
+                                    <h4 id="auth-status-title">未设置</h4>
+                                    <p id="auth-status-desc">请设置双密码以启用高级功能保护</p>
+                                </div>
+                                <div class="auth-status-badge">
+                                    <span id="auth-status-badge" class="cyber-tag tag-warning">未设置</span>
+                                </div>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <div class="auth-info-box">
+                                <h4>💡 关于双密码验证</h4>
+                                <p>双密码验证系统要求设置两个独立的密码，用于保护高级练习功能。只有同时验证两个密码后，才能访问高级练习模块。</p>
+                                <ul class="auth-feature-list">
+                                    <li>✓ 双重安全保护</li>
+                                    <li>✓ 防止误操作</li>
+                                    <li>✓ 合规性保障</li>
+                                </ul>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <button id="btn-setup-password" class="cyber-btn primary">设置/修改双密码</button>
+                        </div>
+                    </div>
+
+                    <!-- 高级授权 -->
+                    <div id="settings-tab-advanced" class="settings-tab-panel">
+                        <div class="cyber-card corner-decoration">
+                            <h3>高级授权</h3>
+                            <p class="card-desc">管理高级练习模式的授权状态</p>
+
+                            <div class="cyber-divider"></div>
+
+                            <div class="auth-status-card">
+                                <div class="auth-status-icon" id="practice-status-icon">⚠️</div>
+                                <div class="auth-status-info">
+                                    <h4 id="practice-status-title">未授权</h4>
+                                    <p id="practice-status-desc">请先完成双密码验证和网络确认</p>
+                                </div>
+                                <div class="auth-status-badge">
+                                    <span id="practice-status-badge" class="cyber-tag tag-danger">未授权</span>
+                                </div>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <h4 class="storage-section-title">可用练习模式</h4>
+
+                            <div id="practice-modes-list" class="practice-modes-list">
+                                <div class="empty-state">加载中...</div>
+                            </div>
+
+                            <div class="cyber-divider"></div>
+
+                            <div class="auth-info-box warning">
+                                <h4>⚠️ 重要提示</h4>
+                                <p>高级练习功能仅用于学习研究目的。使用前请确保：</p>
+                                <ul class="auth-feature-list">
+                                    <li>✓ 您拥有目标网络的合法授权</li>
+                                    <li>✓ 您了解相关法律法规</li>
+                                    <li>✓ 您将仅在授权范围内使用</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- 双密码设置对话框 -->
+            <div id="password-modal" class="modal-overlay" style="display: none;">
+                <div class="modal-content cyber-card corner-decoration">
+                    <h3 id="modal-title">设置双密码</h3>
+                    <p class="card-desc">请设置两个独立的密码用于高级功能验证</p>
+
+                    <div class="cyber-divider"></div>
+
+                    <div class="form-group">
+                        <label>第一段密码</label>
+                        <input type="password" id="modal-password-1" class="cyber-input" placeholder="输入第一段密码">
+                    </div>
+
+                    <div class="form-group">
+                        <label>确认第一段密码</label>
+                        <input type="password" id="modal-password-1-confirm" class="cyber-input" placeholder="再次输入第一段密码">
+                    </div>
+
+                    <div class="form-group">
+                        <label>第二段密码</label>
+                        <input type="password" id="modal-password-2" class="cyber-input" placeholder="输入第二段密码">
+                    </div>
+
+                    <div class="form-group">
+                        <label>确认第二段密码</label>
+                        <input type="password" id="modal-password-2-confirm" class="cyber-input" placeholder="再次输入第二段密码">
+                    </div>
+
+                    <div id="modal-error" class="modal-error" style="display: none;"></div>
+
+                    <div class="cyber-divider"></div>
+
+                    <div class="modal-actions">
+                        <button id="btn-modal-cancel" class="cyber-btn">取消</button>
+                        <button id="btn-modal-confirm" class="cyber-btn primary">确认设置</button>
+                    </div>
+                </div>
+            </div>
+
+
+        </main>
+    </div>
+
+    <!-- 脚本 -->
+    <script src="/static/js/background.js"></script>
+    <script src="/static/js/visualization.js"></script>
+    <script src="/static/js/teaching.js"></script>
+    <script src="/static/js/handshake.js"></script>
+    <script src="/static/js/wep_practice.js"></script>
+    <script src="/static/js/attack_defense.js"></script>
+    <script src="/static/js/settings.js"></script>
+    <script src="/static/js/ai_chat.js"></script>
+    <script src="/static/js/app.js"></script>
+</body>
+</html>

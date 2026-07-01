@@ -1,0 +1,380 @@
+
+/* === 攻防演练页面样式 === */
+
+.attack-categories {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 20px;
+    flex-wrap: wrap;
+}
+
+.category-tab {
+    padding: 10px 20px;
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(0, 255, 245, 0.3);
+    border-radius: 6px;
+    color: #c0c0e0;
+    cursor: pointer;
+    font-size: 14px;
+    transition: all 0.3s;
+}
+
+.category-tab:hover {
+    border-color: rgba(0, 255, 245, 0.6);
+    color: #00fff5;
+}
+
+.category-tab.active {
+    background: rgba(0, 255, 245, 0.15);
+    border-color: #00fff5;
+    color: #00fff5;
+    box-shadow: 0 0 15px rgba(0, 255, 245, 0.2);
+}
+
+.attack-layout {
+    display: grid;
+    grid-template-columns: 320px 1fr;
+    gap: 20px;
+    min-height: 600px;
+}
+
+.attack-sidebar {
+    display: flex;
+    flex-direction: column;
+}
+
+.attack-content {
+    display: flex;
+    flex-direction: column;
+    gap: 20px;
+}
+
+.scenario-list {
+    max-height: 600px;
+    overflow-y: auto;
+    margin-top: 10px;
+}
+
+.scenario-list-item {
+    background: rgba(22, 33, 62, 0.5);
+    border: 1px solid rgba(0, 255, 245, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    margin-bottom: 10px;
+    cursor: pointer;
+    transition: all 0.3s;
+}
+
+.scenario-list-item:hover {
+    border-color: rgba(0, 255, 245, 0.5);
+    background: rgba(0, 255, 245, 0.08);
+}
+
+.scenario-list-item.active {
+    border-color: var(--accent-cyan);
+    background: rgba(0, 255, 245, 0.12);
+    box-shadow: 0 0 15px rgba(0, 255, 245, 0.2);
+}
+
+.scenario-item-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 8px;
+}
+
+.scenario-item-title {
+    color: var(--accent-cyan);
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.scenario-item-desc {
+    color: var(--text-secondary);
+    font-size: 12px;
+    margin-bottom: 10px;
+    line-height: 1.5;
+}
+
+.scenario-item-footer {
+    display: flex;
+    gap: 8px;
+}
+
+.scenario-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-start;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.scenario-title-section {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.scenario-title-section h3 {
+    margin: 0;
+}
+
+.scenario-meta {
+    display: flex;
+    gap: 10px;
+}
+
+.scenario-detail {
+    max-height: 500px;
+    overflow-y: auto;
+}
+
+.detail-section {
+    margin-bottom: 25px;
+}
+
+.detail-section-title {
+    color: var(--accent-magenta);
+    font-size: 16px;
+    margin-bottom: 12px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid rgba(255, 0, 255, 0.3);
+}
+
+.detail-content {
+    color: #c0c0e0;
+    line-height: 1.8;
+    font-size: 14px;
+}
+
+.detail-content p {
+    margin-bottom: 10px;
+}
+
+.detail-content strong {
+    color: var(--accent-cyan);
+}
+
+.step-list {
+    list-style: none;
+    padding: 0;
+    counter-reset: step-counter;
+}
+
+.step-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 12px;
+    padding: 12px 0;
+    border-bottom: 1px dashed rgba(0, 255, 245, 0.1);
+}
+
+.step-number {
+    width: 28px;
+    height: 28px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: rgba(0, 255, 245, 0.2);
+    border-radius: 50%;
+    color: var(--accent-cyan);
+    font-weight: bold;
+    font-size: 13px;
+    flex-shrink: 0;
+}
+
+.step-text {
+    color: #c0c0e0;
+    line-height: 1.6;
+    font-size: 14px;
+    flex: 1;
+}
+
+.impact-box {
+    background: rgba(255, 51, 51, 0.1);
+    border: 1px solid rgba(255, 51, 51, 0.4);
+    border-radius: 8px;
+    padding: 15px;
+    color: #ff6666;
+    line-height: 1.8;
+    font-size: 14px;
+}
+
+.defense-list {
+    list-style: none;
+    padding: 0;
+}
+
+.defense-item {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+    padding: 8px 0;
+    color: #c0c0e0;
+    font-size: 14px;
+    line-height: 1.6;
+}
+
+.defense-icon {
+    color: var(--success);
+    font-weight: bold;
+    flex-shrink: 0;
+}
+
+.defense-text {
+    flex: 1;
+}
+
+.simulation-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 15px;
+    flex-wrap: wrap;
+    gap: 10px;
+}
+
+.simulation-controls {
+    display: flex;
+    gap: 10px;
+}
+
+.simulation-progress {
+    margin-bottom: 15px;
+}
+
+.sim-step-indicator {
+    margin-bottom: 8px;
+    text-align: right;
+}
+
+.sim-step {
+    color: var(--accent-cyan);
+    font-family: 'Consolas', monospace;
+    font-size: 13px;
+}
+
+.simulation-area {
+    margin-bottom: 15px;
+}
+
+.simulation-log {
+    background: rgba(10, 10, 30, 0.9);
+    border: 1px solid rgba(0, 255, 245, 0.2);
+    border-radius: 8px;
+    padding: 15px;
+    height: 250px;
+    overflow-y: auto;
+    font-family: 'Consolas', 'Courier New', monospace;
+    font-size: 13px;
+    line-height: 1.6;
+}
+
+.log-entry {
+    margin-bottom: 5px;
+    padding: 2px 0;
+}
+
+.log-entry.info {
+    color: #00fff5;
+}
+
+.log-entry.success {
+    color: #00ff00;
+}
+
+.log-entry.warning {
+    color: #ffcc00;
+}
+
+.log-entry.error {
+    color: #ff6666;
+}
+
+.log-entry.attack {
+    color: #ff6600;
+}
+
+.defense-tip {
+    background: rgba(0, 255, 0, 0.1);
+    border: 1px solid rgba(0, 255, 0, 0.4);
+    border-radius: 8px;
+    padding: 15px;
+    margin-top: 15px;
+    animation: fadeIn 0.3s ease-out;
+}
+
+.defense-tip-header {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 8px;
+    color: var(--success);
+    font-weight: bold;
+}
+
+.defense-icon {
+    font-size: 18px;
+}
+
+.defense-tip-content {
+    color: #c0e0c0;
+    line-height: 1.6;
+    font-size: 14px;
+}
+
+.defense-summary {
+    margin-top: 10px;
+}
+
+.defense-category {
+    margin-bottom: 20px;
+}
+
+.defense-category:last-child {
+    margin-bottom: 0;
+}
+
+.defense-category-title {
+    color: var(--accent-cyan);
+    font-size: 15px;
+    margin-bottom: 10px;
+}
+
+.defense-method-list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.defense-method-list li {
+    position: relative;
+    padding: 8px 0 8px 25px;
+    color: #c0c0e0;
+    font-size: 14px;
+    line-height: 1.6;
+    border-bottom: 1px dashed rgba(0, 255, 245, 0.1);
+}
+
+.defense-method-list li::before {
+    content: '✓';
+    position: absolute;
+    left: 0;
+    color: var(--success);
+    font-weight: bold;
+}
+
+.defense-method-list li:last-child {
+    border-bottom: none;
+}
+
+@media (max-width: 992px) {
+    .attack-layout {
+        grid-template-columns: 1fr;
+    }
+
+    .scenario-list {
+        max-height: 300px;
+    }
+}
