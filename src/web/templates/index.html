@@ -77,31 +77,78 @@
             <!-- 首页 -->
             <section id="page-home" class="page active">
                 <div class="hero">
+                    <div class="hero-decoration"></div>
                     <h1>WiFi可视化安全学习平台</h1>
-                    <p class="subtitle">具有科幻风格界面的WiFi安全可视化学习工具</p>
+                    <p class="subtitle">具有科幻风格界面的WiFi安全可视化学习工具 · 温和模式</p>
+                    <div class="hero-stats">
+                        <div class="hero-stat">
+                            <span class="stat-num" id="hero-stat-modules">7</span>
+                            <span class="stat-label">学习模块</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="stat-num" id="hero-stat-tests">38</span>
+                            <span class="stat-label">测试用例</span>
+                        </div>
+                        <div class="hero-stat">
+                            <span class="stat-num" id="hero-stat-mode">温和</span>
+                            <span class="stat-label">运行模式</span>
+                        </div>
+                    </div>
                 </div>
 
                 <div class="feature-grid">
-                    <div class="feature-card">
+                    <div class="feature-card" data-page="scan">
+                        <div class="feature-icon">📡</div>
                         <h3>WiFi扫描</h3>
                         <p>被动扫描周边WiFi网络</p>
+                        <div class="feature-detail hidden">
+                            <ul>
+                                <li>信号强度可视化</li>
+                                <li>加密方式识别</li>
+                                <li>信道分布分析</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="feature-card">
+                    <div class="feature-card" data-page="learning">
+                        <div class="feature-icon">📚</div>
                         <h3>教学模式</h3>
                         <p>加密原理、握手过程、漏洞分析</p>
+                        <div class="feature-detail hidden">
+                            <ul>
+                                <li>WEP/RC4加密原理</li>
+                                <li>WPA2四次握手</li>
+                                <li>密钥推导可视化</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="feature-card">
+                    <div class="feature-card" data-page="security">
+                        <div class="feature-icon">🔒</div>
                         <h3>安全评估</h3>
                         <p>评估自有网络安全</p>
+                        <div class="feature-detail hidden">
+                            <ul>
+                                <li>密码强度检测</li>
+                                <li>加密方式评级</li>
+                                <li>风险点分析</li>
+                            </ul>
+                        </div>
                     </div>
-                    <div class="feature-card">
-                        <h3>AI助手</h3>
-                        <p>智能问答、学习指导</p>
+                    <div class="feature-card" data-page="attack">
+                        <div class="feature-icon">⚔️</div>
+                        <h3>攻防演练</h3>
+                        <p>模拟攻击与防御演示</p>
+                        <div class="feature-detail hidden">
+                            <ul>
+                                <li>WEP破解练习</li>
+                                <li>WPA2握手分析</li>
+                                <li>密码强度测试</li>
+                            </ul>
+                        </div>
                     </div>
                 </div>
 
                 <div class="warning-banner">
-                    ⚠ 注意：所有功能仅用于学习研究，请遵守法律法规
+                    ⚠ 注意：所有功能仅用于学习研究，请遵守法律法规 · 温和模式：纯被动分析，不影响网络
                 </div>
             </section>
 

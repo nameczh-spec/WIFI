@@ -27,6 +27,25 @@ class WiFiLearningApp {
                 this.showPage(page);
             });
         });
+
+        // 首页feature-card点击导航
+        document.querySelectorAll('.feature-card[data-page]').forEach(card => {
+            card.addEventListener('click', () => {
+                const page = card.dataset.page;
+                this.showPage(page);
+            });
+
+            // hover展开详情
+            card.addEventListener('mouseenter', () => {
+                const detail = card.querySelector('.feature-detail');
+                if (detail) detail.classList.remove('hidden');
+            });
+
+            card.addEventListener('mouseleave', () => {
+                const detail = card.querySelector('.feature-detail');
+                if (detail) detail.classList.add('hidden');
+            });
+        });
     }
 
     showPage(pageName) {

@@ -208,7 +208,19 @@ body {
 /* 首页样式 */
 .hero {
     text-align: center;
-    padding: 50px 0;
+    padding: 50px 0 30px;
+    position: relative;
+}
+
+.hero-decoration {
+    position: absolute;
+    top: 20px;
+    left: 50%;
+    transform: translateX(-50%);
+    width: 80%;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, var(--accent-cyan), transparent);
+    opacity: 0.5;
 }
 
 .hero h1 {
@@ -216,11 +228,43 @@ body {
     font-size: 36px;
     text-shadow: 0 0 20px var(--accent-magenta);
     margin-bottom: 15px;
+    animation: titleGlow 3s ease-in-out infinite;
+}
+
+@keyframes titleGlow {
+    0%, 100% { text-shadow: 0 0 20px var(--accent-magenta); }
+    50% { text-shadow: 0 0 30px var(--accent-magenta), 0 0 50px rgba(255, 0, 255, 0.3); }
 }
 
 .subtitle {
     color: var(--accent-cyan);
     font-size: 18px;
+}
+
+.hero-stats {
+    display: flex;
+    justify-content: center;
+    gap: 60px;
+    margin-top: 30px;
+}
+
+.hero-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.hero-stat .stat-num {
+    font-size: 28px;
+    font-weight: bold;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 10px rgba(0, 255, 245, 0.5);
+}
+
+.hero-stat .stat-label {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin-top: 5px;
 }
 
 .feature-grid {
@@ -231,17 +275,41 @@ body {
 }
 
 .feature-card {
-    background: var(--bg-medium);
-    border: 1px solid var(--bg-light);
+    background: linear-gradient(135deg, rgba(26, 26, 46, 0.8), rgba(22, 33, 62, 0.8));
+    border: 1px solid rgba(0, 255, 245, 0.2);
     border-radius: 10px;
     padding: 25px;
     text-align: center;
     transition: all 0.3s;
+    cursor: pointer;
+    position: relative;
+    overflow: hidden;
+}
+
+.feature-card::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(0, 255, 245, 0.1), transparent);
+    transition: left 0.5s;
+}
+
+.feature-card:hover::before {
+    left: 100%;
 }
 
 .feature-card:hover {
     border-color: var(--accent-cyan);
-    box-shadow: 0 0 15px rgba(0, 255, 245, 0.3);
+    box-shadow: 0 0 20px rgba(0, 255, 245, 0.3);
+    transform: translateY(-5px);
+}
+
+.feature-icon {
+    font-size: 36px;
+    margin-bottom: 15px;
 }
 
 .feature-card h3 {
@@ -254,9 +322,41 @@ body {
     font-size: 14px;
 }
 
+.feature-detail {
+    margin-top: 15px;
+    padding-top: 15px;
+    border-top: 1px dashed rgba(0, 255, 245, 0.2);
+    text-align: left;
+    animation: expandFadeIn 0.3s ease-out;
+}
+
+.feature-detail.hidden {
+    display: none;
+}
+
+.feature-detail ul {
+    list-style: none;
+    padding: 0;
+}
+
+.feature-detail li {
+    color: #a0a0c0;
+    font-size: 12px;
+    padding: 4px 0;
+    padding-left: 15px;
+    position: relative;
+}
+
+.feature-detail li::before {
+    content: '▸';
+    color: var(--accent-cyan);
+    position: absolute;
+    left: 0;
+}
+
 .warning-banner {
-    background: rgba(255, 204, 0, 0.2);
-    border: 1px solid var(--warning);
+    background: rgba(255, 204, 0, 0.12);
+    border: 1px solid rgba(255, 204, 0, 0.4);
     color: var(--warning);
     padding: 15px;
     border-radius: 5px;
