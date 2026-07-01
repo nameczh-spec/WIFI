@@ -51,6 +51,8 @@ class AIClient:
             return "https://api.openai.com/v1/chat/completions"
         elif self.api_provider == "claude":
             return "https://api.anthropic.com/v1/messages"
+        elif self.api_provider == "deepseek":
+            return "https://api.deepseek.com/chat/completions"
         elif self.api_provider == "custom":
             return self.config.get("ai_api_url", "")
         return ""
@@ -119,7 +121,7 @@ class AIClient:
         messages.append({"role": "user", "content": message})
 
         try:
-            if self.api_provider == "openai":
+            if self.api_provider == "openai" or self.api_provider == "deepseek":
                 return self._chat_openai(messages, temperature, max_tokens)
             elif self.api_provider == "claude":
                 return self._chat_claude(messages, max_tokens)

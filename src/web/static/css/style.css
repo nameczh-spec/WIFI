@@ -312,6 +312,15 @@ body {
     margin-bottom: 15px;
 }
 
+.feature-icon.icon::before {
+    width: 48px;
+    height: 48px;
+}
+
+.feature-icon.icon {
+    display: inline-block;
+}
+
 .feature-card h3 {
     color: var(--accent-cyan);
     margin-bottom: 10px;
@@ -379,6 +388,148 @@ body {
 
 .scan-controls {
     margin-bottom: 20px;
+}
+
+.scan-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin: 20px 0;
+    flex-wrap: wrap;
+    gap: 20px;
+}
+
+.scan-header .scan-controls {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    margin: 0;
+    text-align: left;
+}
+
+.scan-filter {
+    display: flex;
+    gap: 10px;
+}
+
+.scan-filter select {
+    background: rgba(26, 26, 46, 0.8);
+    border: 1px solid rgba(0, 255, 245, 0.3);
+    color: var(--text-primary);
+    padding: 8px 12px;
+    border-radius: 5px;
+    font-family: inherit;
+    cursor: pointer;
+    transition: border-color 0.3s;
+}
+
+.scan-filter select:focus {
+    outline: none;
+    border-color: var(--accent-cyan);
+}
+
+.scan-stats {
+    display: flex;
+    gap: 30px;
+}
+
+.scan-stat {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    text-align: center;
+}
+
+.scan-stat .stat-value {
+    font-size: 24px;
+    font-weight: bold;
+    color: var(--accent-cyan);
+    text-shadow: 0 0 10px rgba(0, 255, 245, 0.5);
+}
+
+.scan-stat .stat-label {
+    font-size: 12px;
+    color: var(--text-secondary);
+    margin-top: 5px;
+}
+
+.card-header {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 15px;
+    padding-bottom: 10px;
+    border-bottom: 1px solid rgba(0, 255, 245, 0.1);
+}
+
+.card-header h3 {
+    margin: 0;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    color: var(--accent-cyan);
+}
+
+.cyber-btn .icon {
+    vertical-align: middle;
+    margin-right: 5px;
+}
+
+.cyber-btn.primary {
+    background: linear-gradient(135deg, rgba(0, 255, 245, 0.15), rgba(255, 0, 255, 0.1));
+    border-color: var(--accent-cyan);
+    color: var(--accent-cyan);
+}
+
+.cyber-btn.primary:hover {
+    background: linear-gradient(135deg, rgba(0, 255, 245, 0.25), rgba(255, 0, 255, 0.15));
+    box-shadow: 0 0 20px rgba(0, 255, 245, 0.4);
+}
+
+/* 信号条样式 */
+.signal-bar {
+    display: inline-block;
+    width: 80px;
+    height: 8px;
+    background: rgba(255, 255, 255, 0.1);
+    border-radius: 4px;
+    overflow: hidden;
+    margin-right: 8px;
+    vertical-align: middle;
+}
+
+.signal-bar-fill {
+    height: 100%;
+    background: linear-gradient(90deg, #00ff00, #00fff5);
+    border-radius: 4px;
+    transition: width 0.3s;
+}
+
+/* 加密标签 */
+.enc-tag {
+    display: inline-block;
+    padding: 3px 8px;
+    border-radius: 4px;
+    font-size: 12px;
+    font-weight: bold;
+}
+
+.enc-tag.secure {
+    background: rgba(0, 255, 0, 0.15);
+    color: #00ff00;
+    border: 1px solid rgba(0, 255, 0, 0.3);
+}
+
+.enc-tag.warning {
+    background: rgba(255, 204, 0, 0.15);
+    color: #ffcc00;
+    border: 1px solid rgba(255, 204, 0, 0.3);
+}
+
+.enc-tag.danger {
+    background: rgba(255, 51, 51, 0.15);
+    color: #ff3333;
+    border: 1px solid rgba(255, 51, 51, 0.3);
 }
 
 .data-table {

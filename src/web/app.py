@@ -900,6 +900,7 @@ def _register_routes(app: Flask):
     def ai_providers():
         try:
             providers = [
+                {"id": "deepseek", "name": "DeepSeek (推荐)", "models": ["deepseek-chat", "deepseek-reasoner"]},
                 {"id": "openai", "name": "OpenAI", "models": ["gpt-4o", "gpt-4o-mini", "gpt-4", "gpt-3.5-turbo"]},
                 {"id": "claude", "name": "Anthropic Claude", "models": ["claude-3-5-sonnet", "claude-3-opus", "claude-3-haiku"]},
                 {"id": "custom", "name": "自定义API", "models": []}
@@ -946,6 +947,83 @@ def _register_routes(app: Flask):
             return jsonify({"success": False, "error": "AI响应失败"}), 500
         except Exception as e:
             logger.error(f"获取学习路径推荐失败: {e}")
+            return jsonify({"success": False, "error": str(e)}), 500
+
+    @app.route('/api/ai/explain', methods=['POST'])
+    def ai_explain():
+        """
+        AI动态讲解内容生成
+        根据主题和上下文动态生成专业讲解
+        """
+        try:
+            data = request.get_json() or {}
+            topic = data.get('topic', '')
+            context = data.get('context', {})
+            level = data.get('level', 'intermediate')
+            detail = data.get('detail', 'basic')
+
+            if not topic:
+                return jsonify({"success": False, "error": "主题不能为空"}), 400
+
+            ai_client = app.config['AI_CLIENT']
+            prompt_manager = app.config['PROMPT_MANAGER']
+
+            if not ai_client.is_configured():
+                return jsonify({
+                    "success": False,
+                    "error": "AI未配置，请先设置API密钥",
+                    "fallback": True
+                }), 400
+
+            context_str = ""
+            if context:
+                context_str = "\n".join([f"{k}: {v}" for k, v in context.items()])
+
+            detail_desc = {
+                "basic": "简洁明了，适合初学者，200字以内",
+                "detailed": "详细深入，包含技术细节，500字左右",
+                "full": "全面深入，包含原理、案例、代码示例，1000字左右"
+            }.get(detail, "详细深入，包含技术细节")
+
+            prompt = f"""请为我讲解关于「{topic}」的内容。
+
+【讲解要求】
+- 知识水平：{level}
+- 详细程度：{detail_desc}
+- 风格要求：专业但通俗易懂，适当使用比喻和类比
+- 结构要求：分点阐述，条理清晰
+
+【相关上下文】
+{context_str if context_str else '无额外上下文'}
+
+【输出格式】
+请使用HTML格式输出，包含以下部分（如适用）：
+1. <h5>概述</h5> - 简要介绍概念
+2. <p>...</p> - 核心原理解释
+3. <div class="highlight-box">...</div> - 关键点/注意事项
+4. <div class="info-steps">...</div> - 步骤/流程（如适用）
+5. <div class="teaching-tip-box">...</div> - 实用提示（如适用）
+
+注意：只输出HTML内容，不要包含markdown代码块标记，不要输出其他说明文字。"""
+
+            system_prompt = prompt_manager.get_system_prompt('teaching')
+            response = ai_client.chat(
+                prompt,
+                system_prompt=system_prompt,
+                temperature=0.7,
+                max_tokens=2000
+            )
+
+            if response:
+                return jsonify({
+                    "success": True,
+                    "content": response.content,
+                    "topic": topic,
+                    "detail": detail
+                })
+            return jsonify({"success": False, "error": "AI响应失败"}), 500
+        except Exception as e:
+            logger.error(f"AI讲解生成失败: {e}")
             return jsonify({"success": False, "error": str(e)}), 500
 
     # ============== 高级练习 ==============
@@ -1170,3 +1248,14 @@ def _register_routes(app: Flask):
         except Exception as e:
             logger.error(f"WEP上一课失败: {e}")
             return jsonify({"success": False, "error": str(e)}), 500
+
+
+if __name__ == "__main__":
+    app = create_app()
+    print("=" * 50)
+    print("WiFi可视化安全学习工具 v2 - Web服务器")
+    print("=" * 50)
+    print("访问地址: http://127.0.0.1:5000")
+    print("温和模式已启用")
+    print("=" * 50)
+    app.run(host="127.0.0.1", port=5000, debug=True)

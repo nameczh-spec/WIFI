@@ -8,6 +8,9 @@ class WiFiLearningApp {
         this.aiConfigured = false;
         this.signalChart = null;
         this.securityChart = null;
+        this.wifiData = [];
+        this.wifiFilter = '';
+        this.wifiSort = 'signal-desc';
 
         this.init();
     }
@@ -68,6 +71,14 @@ class WiFiLearningApp {
     bindEvents() {
         // WiFi扫描
         document.getElementById('btn-scan')?.addEventListener('click', () => this.scanWiFi());
+        document.getElementById('scan-filter-enc')?.addEventListener('change', (e) => {
+            this.wifiFilter = e.target.value;
+            this.renderFilteredNetworks();
+        });
+        document.getElementById('scan-sort')?.addEventListener('change', (e) => {
+            this.wifiSort = e.target.value;
+            this.renderFilteredNetworks();
+        });
 
         // 安全评估
         document.getElementById('btn-evaluate')?.addEventListener('click', () => this.evaluateSecurity());
@@ -160,14 +171,16 @@ class WiFiLearningApp {
     async scanWiFi() {
         const btn = document.getElementById('btn-scan');
         btn.disabled = true;
-        btn.textContent = '扫描中...';
+        btn.innerHTML = '<span class="icon icon-refresh"></span> 扫描中...';
 
         try {
             const res = await fetch(`${this.apiBase}/wifi/scan`);
             const data = await res.json();
 
             if (data.networks) {
-                this.displayNetworks(data.networks);
+                this.wifiData = data.networks;
+                this.updateScanStats();
+                this.renderFilteredNetworks();
                 this.updateSignalChart(data.networks);
             } else if (data.error) {
                 alert(data.error);
@@ -177,8 +190,49 @@ class WiFiLearningApp {
             alert('扫描失败');
         } finally {
             btn.disabled = false;
-            btn.textContent = '开始扫描';
+            btn.innerHTML = '<span class="icon icon-radar"></span> 开始扫描';
         }
+    }
+
+    updateScanStats() {
+        const networks = this.wifiData;
+        const total = networks.length;
+        const secure = networks.filter(n => n.encryption && n.encryption !== 'Open').length;
+        const open = total - secure;
+
+        document.getElementById('stat-total').textContent = total;
+        document.getElementById('stat-secure').textContent = secure;
+        document.getElementById('stat-open').textContent = open;
+    }
+
+    getFilteredSortedNetworks() {
+        let result = [...this.wifiData];
+
+        if (this.wifiFilter) {
+            result = result.filter(n => n.encryption.includes(this.wifiFilter));
+        }
+
+        switch (this.wifiSort) {
+            case 'signal-desc':
+                result.sort((a, b) => b.signal - a.signal);
+                break;
+            case 'signal-asc':
+                result.sort((a, b) => a.signal - b.signal);
+                break;
+            case 'name':
+                result.sort((a, b) => (a.ssid || '').localeCompare(b.ssid || ''));
+                break;
+            case 'channel':
+                result.sort((a, b) => a.channel - b.channel);
+                break;
+        }
+
+        return result;
+    }
+
+    renderFilteredNetworks() {
+        const networks = this.getFilteredSortedNetworks();
+        this.displayNetworks(networks);
     }
 
     displayNetworks(networks) {
@@ -186,18 +240,28 @@ class WiFiLearningApp {
         tbody.innerHTML = '';
 
         if (networks.length === 0) {
-            tbody.innerHTML = '<tr><td colspan="5" class="empty">未发现WiFi网络</td></tr>';
+            tbody.innerHTML = '<tr><td colspan="6" class="empty">未发现WiFi网络</td></tr>';
             return;
         }
 
         networks.forEach(net => {
             const tr = document.createElement('tr');
+            const band = net.channel > 14 ? '5GHz' : '2.4GHz';
+            const encClass = net.encryption.includes('WPA2') || net.encryption.includes('WPA3')
+                ? 'secure'
+                : (net.encryption === 'Open' ? 'danger' : 'warning');
             tr.innerHTML = `
                 <td>${net.ssid || '(隐藏)'}</td>
-                <td>${net.bssid}</td>
-                <td>${net.signal}%</td>
-                <td>${net.encryption}</td>
+                <td style="font-family: monospace; font-size: 12px;">${net.bssid}</td>
+                <td>
+                    <div class="signal-bar">
+                        <div class="signal-bar-fill" style="width: ${net.signal}%"></div>
+                    </div>
+                    <span>${net.signal}%</span>
+                </td>
+                <td><span class="enc-tag ${encClass}">${net.encryption}</span></td>
                 <td>${net.channel}</td>
+                <td>${band}</td>
             `;
             tbody.appendChild(tr);
         });

@@ -31,35 +31,35 @@
 
             <ul class="nav-menu">
                 <li class="nav-item active" data-page="home">
-                    <span class="icon">🏠</span>
+                    <span class="icon icon-home"></span>
                     <span>首页</span>
                 </li>
                 <li class="nav-item" data-page="scan">
-                    <span class="icon">📡</span>
+                    <span class="icon icon-radar"></span>
                     <span>WiFi扫描</span>
                 </li>
                 <li class="nav-item" data-page="visualization">
-                    <span class="icon">📊</span>
+                    <span class="icon icon-chart"></span>
                     <span>数据可视化</span>
                 </li>
                 <li class="nav-item" data-page="learning">
-                    <span class="icon">📚</span>
+                    <span class="icon icon-book"></span>
                     <span>教学模式</span>
                 </li>
                 <li class="nav-item" data-page="security">
-                    <span class="icon">🔒</span>
+                    <span class="icon icon-shield"></span>
                     <span>安全评估</span>
                 </li>
                 <li class="nav-item" data-page="ai">
-                    <span class="icon">🤖</span>
+                    <span class="icon icon-robot"></span>
                     <span>AI助手</span>
                 </li>
                 <li class="nav-item" data-page="attack">
-                    <span class="icon">⚔️</span>
+                    <span class="icon icon-sword"></span>
                     <span>攻防演练</span>
                 </li>
                 <li class="nav-item" data-page="settings">
-                    <span class="icon">⚙️</span>
+                    <span class="icon icon-gear"></span>
                     <span>设置</span>
                 </li>
             </ul>
@@ -98,7 +98,7 @@
 
                 <div class="feature-grid">
                     <div class="feature-card" data-page="scan">
-                        <div class="feature-icon">📡</div>
+                        <div class="feature-icon icon icon-radar"></div>
                         <h3>WiFi扫描</h3>
                         <p>被动扫描周边WiFi网络</p>
                         <div class="feature-detail hidden">
@@ -110,7 +110,7 @@
                         </div>
                     </div>
                     <div class="feature-card" data-page="learning">
-                        <div class="feature-icon">📚</div>
+                        <div class="feature-icon icon icon-book-open"></div>
                         <h3>教学模式</h3>
                         <p>加密原理、握手过程、漏洞分析</p>
                         <div class="feature-detail hidden">
@@ -122,7 +122,7 @@
                         </div>
                     </div>
                     <div class="feature-card" data-page="security">
-                        <div class="feature-icon">🔒</div>
+                        <div class="feature-icon icon icon-shield"></div>
                         <h3>安全评估</h3>
                         <p>评估自有网络安全</p>
                         <div class="feature-detail hidden">
@@ -134,7 +134,7 @@
                         </div>
                     </div>
                     <div class="feature-card" data-page="attack">
-                        <div class="feature-icon">⚔️</div>
+                        <div class="feature-icon icon icon-sword"></div>
                         <h3>攻防演练</h3>
                         <p>模拟攻击与防御演示</p>
                         <div class="feature-detail hidden">
@@ -155,32 +155,73 @@
             <!-- WiFi扫描页 -->
             <section id="page-scan" class="page">
                 <h2>WiFi网络扫描</h2>
+                <p class="subtitle">被动扫描周边WiFi网络，分析信号、加密方式、信道分布</p>
+
+                <div class="scan-header">
+                    <div class="scan-controls">
+                        <button id="btn-scan" class="cyber-btn primary">
+                            <span class="icon icon-radar"></span>
+                            开始扫描
+                        </button>
+                        <div class="scan-filter">
+                            <select id="scan-filter-enc">
+                                <option value="">全部加密方式</option>
+                                <option value="WPA2">WPA2</option>
+                                <option value="WPA">WPA</option>
+                                <option value="WEP">WEP</option>
+                                <option value="Open">开放网络</option>
+                            </select>
+                            <select id="scan-sort">
+                                <option value="signal-desc">信号最强</option>
+                                <option value="signal-asc">信号最弱</option>
+                                <option value="name">名称排序</option>
+                                <option value="channel">信道排序</option>
+                            </select>
+                        </div>
+                    </div>
+                    <div class="scan-stats" id="scan-stats">
+                        <div class="scan-stat">
+                            <span class="stat-value" id="stat-total">0</span>
+                            <span class="stat-label">网络总数</span>
+                        </div>
+                        <div class="scan-stat">
+                            <span class="stat-value" id="stat-secure">0</span>
+                            <span class="stat-label">已加密</span>
+                        </div>
+                        <div class="scan-stat">
+                            <span class="stat-value" id="stat-open">0</span>
+                            <span class="stat-label">开放网络</span>
+                        </div>
+                    </div>
+                </div>
 
                 <div class="chart-container">
                     <div id="chart-signal" class="chart"></div>
                 </div>
 
-                <div class="scan-controls">
-                    <button id="btn-scan" class="cyber-btn">开始扫描</button>
-                </div>
-
                 <div class="scan-results">
-                    <table id="wifi-table" class="data-table">
-                        <thead>
-                            <tr>
-                                <th>SSID</th>
-                                <th>BSSID</th>
-                                <th>信号</th>
-                                <th>加密方式</th>
-                                <th>信道</th>
-                            </tr>
-                        </thead>
-                        <tbody id="wifi-list">
-                            <tr>
-                                <td colspan="5" class="empty">点击"开始扫描"搜索WiFi网络</td>
-                            </tr>
-                        </tbody>
-                    </table>
+                    <div class="cyber-card corner-decoration">
+                        <div class="card-header">
+                            <h3><span class="icon icon-list"></span> 扫描结果</h3>
+                        </div>
+                        <table id="wifi-table" class="data-table">
+                            <thead>
+                                <tr>
+                                    <th>SSID</th>
+                                    <th>BSSID</th>
+                                    <th>信号强度</th>
+                                    <th>加密方式</th>
+                                    <th>信道</th>
+                                    <th>频段</th>
+                                </tr>
+                            </thead>
+                            <tbody id="wifi-list">
+                                <tr>
+                                    <td colspan="6" class="empty">点击"开始扫描"搜索WiFi网络</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </section>
 
