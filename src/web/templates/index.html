@@ -593,6 +593,130 @@
                                     <div id="packet-structure-panel" class="packet-structure-panel">
                                     </div>
                                 </div>
+
+                                <!-- WPA2密钥推导讲解面板 -->
+                                <div class="teaching-panel" id="wpa2-teaching-panel">
+                                    <div class="teaching-panel-header">
+                                        <div class="teaching-panel-title">
+                                            <span class="icon">🔑</span>
+                                            <h4>WPA2密钥推导详解</h4>
+                                        </div>
+                                        <div class="teaching-panel-tabs">
+                                            <div class="teaching-tab active" data-section="wpa2-overview">概述</div>
+                                            <div class="teaching-tab" data-section="wpa2-pbkdf2">PBKDF2</div>
+                                            <div class="teaching-tab" data-section="wpa2-prf">PRF函数</div>
+                                            <div class="teaching-tab" data-section="wpa2-ptk">PTK分解</div>
+                                            <div class="teaching-tab" data-section="wpa2-security">安全性</div>
+                                        </div>
+                                    </div>
+                                    <div class="teaching-panel-content">
+                                        <div class="teaching-section active" data-section-id="wpa2-overview">
+                                            <div class="teaching-content-block">
+                                                <h5>密钥层次结构</h5>
+                                                <p>WPA2使用多层次的密钥体系，从用户密码最终派生出用于加密数据的临时密钥。</p>
+                                                <div class="formula">密码 → PMK → PTK → KCK + KEK + TK</div>
+                                                <p>每次连接时都会生成新的临时密钥（PTK），确保前向保密性。</p>
+                                            </div>
+                                            <div class="teaching-tip-box">
+                                                <h5>💡 核心思想</h5>
+                                                <p>密码不直接用于加密，而是通过多步推导生成临时密钥，增加安全性。</p>
+                                            </div>
+                                        </div>
+                                        <div class="teaching-section" data-section-id="wpa2-pbkdf2">
+                                            <div class="teaching-content-block">
+                                                <h5>PBKDF2密码派生</h5>
+                                                <p>PBKDF2将用户密码转换为256位的PMK，通过4096次HMAC-SHA1迭代增加计算成本。</p>
+                                                <div class="formula">PMK = PBKDF2(密码, SSID, 4096, 32)</div>
+                                                <div class="info-steps">
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">1</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">第一次迭代</div>
+                                                            <div class="info-step-desc">U1 = HMAC-SHA1(密码, SSID || 1)</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">2</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">后续迭代</div>
+                                                            <div class="info-step-desc">U2 = HMAC-SHA1(密码, U1), 重复4096次</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">3</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">异或累积</div>
+                                                            <div class="info-step-desc">DK = U1 ⊕ U2 ⊕ ... ⊕ U4096</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="highlight-box">
+                                                    <strong>为什么用4096次？</strong>让暴力破解变得昂贵。每次密码尝试需要4096次HMAC计算，大幅增加攻击成本。
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="teaching-section" data-section-id="wpa2-prf">
+                                            <div class="teaching-content-block">
+                                                <h5>PRF伪随机函数</h5>
+                                                <p>PRF从PMK派生出48字节的PTK，结合AP/客户端的MAC地址和Nonce确保唯一性。</p>
+                                                <div class="formula">PTK = PRF(PMK, "Pairwise key expansion", Min(AA,SPA) || Max(AA,SPA) || Min(ANonce,SNonce) || Max(ANonce,SNonce))</div>
+                                                <p>排序MAC和Nonce确保AP和客户端计算顺序一致，得到相同的PTK。</p>
+                                                <div class="teaching-tip-box">
+                                                    <h5>💡 排序的重要性</h5>
+                                                    <p>如果不排序，AP和客户端可能以不同顺序拼接数据，导致计算出不同的PTK。</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="teaching-section" data-section-id="wpa2-ptk">
+                                            <div class="teaching-content-block">
+                                                <h5>PTK子密钥分解</h5>
+                                                <p>48字节的PTK分为三个16字节的子密钥，各司其职：</p>
+                                                <div class="info-steps">
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">K</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">KCK (Key Confirmation Key)</div>
+                                                            <div class="info-step-desc">0-15字节：用于计算MIC，验证消息完整性</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">K</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">KEK (Key Encryption Key)</div>
+                                                            <div class="info-step-desc">16-31字节：用于加密传输GTK（组密钥）</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">T</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">TK (Temporal Key)</div>
+                                                            <div class="info-step-desc">32-47字节：实际数据加密密钥（CCMP/TKIP）</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="teaching-section" data-section-id="wpa2-security">
+                                            <div class="teaching-content-block">
+                                                <h5>安全分析</h5>
+                                                <p>WPA2的密钥体系设计是安全的，弱点在于用户密码强度。</p>
+                                                <div class="highlight-box success">
+                                                    <strong>安全特性：</strong>
+                                                    <ul style="margin-top:8px;">
+                                                        <li>4096次迭代增加暴力破解成本</li>
+                                                        <li>每次会话生成新PTK（前向保密）</li>
+                                                        <li>HMAC-SHA1经过严格密码学分析</li>
+                                                        <li>无法从PTK反推PMK或密码</li>
+                                                    </ul>
+                                                </div>
+                                                <div class="teaching-warning-box">
+                                                    <h5>⚠️ 残余风险</h5>
+                                                    <p>弱密码仍可被字典攻击破解。建议使用12位以上混合密码，或升级到WPA3。</p>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
                     </div>
@@ -854,6 +978,98 @@
                                     <div id="wep-key-points" class="wep-key-points" style="display:none;">
                                         <h4>🔑 关键点</h4>
                                         <ul id="wep-key-points-list"></ul>
+                                    </div>
+                                </div>
+
+                                <!-- WEP技术讲解面板 -->
+                                <div class="teaching-panel" id="wep-teaching-panel">
+                                    <div class="teaching-panel-header">
+                                        <div class="teaching-panel-title">
+                                            <span class="icon">🔬</span>
+                                            <h4>WEP加密原理详解</h4>
+                                        </div>
+                                        <div class="teaching-panel-tabs">
+                                            <div class="teaching-tab active" data-section="wep-overview">概述</div>
+                                            <div class="teaching-tab" data-section="wep-rc4">RC4算法</div>
+                                            <div class="teaching-tab" data-section="wep-iv">IV漏洞</div>
+                                            <div class="teaching-tab" data-section="wep-fms">FMS攻击</div>
+                                        </div>
+                                    </div>
+                                    <div class="teaching-panel-content">
+                                        <div class="teaching-section active" data-section-id="wep-overview">
+                                            <div class="teaching-content-block">
+                                                <h5>什么是WEP加密？</h5>
+                                                <p>WEP（Wired Equivalent Privacy）是1997年发布的WiFi加密标准，使用RC4流密码加密数据。由于设计缺陷，现已被淘汰。</p>
+                                                <div class="formula">明文 ⊕ RC4(密钥, IV) = 密文</div>
+                                            </div>
+                                            <div class="teaching-warning-box">
+                                                <h5>⚠️ 安全警告</h5>
+                                                <p>WEP可在60秒内被破解，任何仍在使用WEP的网络都不安全。请立即升级到WPA2或WPA3。</p>
+                                            </div>
+                                        </div>
+                                        <div class="teaching-section" data-section-id="wep-rc4">
+                                            <div class="teaching-content-block">
+                                                <h5>RC4流密码原理</h5>
+                                                <p>RC4是一种对称流密码，通过密钥流与明文异或生成密文。相同的密钥+IV会生成相同的密钥流。</p>
+                                                <div class="formula">密钥流 = RC4(KSA(密钥 || IV))</div>
+                                                <p>KSA（Key Scheduling Algorithm）初始化一个256字节的S盒，PRGA生成伪随机密钥流。</p>
+                                            </div>
+                                            <div class="teaching-tip-box">
+                                                <h5>💡 关键弱点</h5>
+                                                <p>RC4本身没有大问题，问题在于WEP对IV的使用方式——IV太短（24位）且以明文传输。</p>
+                                            </div>
+                                        </div>
+                                        <div class="teaching-section" data-section-id="wep-iv">
+                                            <div class="teaching-content-block">
+                                                <h5>IV重用漏洞</h5>
+                                                <p>WEP使用24位IV，只有16,777,216种可能。在繁忙网络中，IV会在几小时内重复使用。</p>
+                                                <div class="formula">IV空间 = 2^24 = 16,777,216</div>
+                                                <p>当相同的IV+密钥组合被重用时，攻击者可以通过异或两个密文推导出明文。</p>
+                                                <div class="highlight-box danger">
+                                                    <strong>致命缺陷：</strong>IV以明文传输，攻击者可以看到每个数据包使用的IV。
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="teaching-section" data-section-id="wep-fms">
+                                            <div class="teaching-content-block">
+                                                <h5>FMS攻击原理</h5>
+                                                <p>FMS（Fluhrer, Mantin, Shamir）攻击利用RC4弱IV来逐字节恢复密钥。</p>
+                                                <div class="info-steps">
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">1</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">收集弱IV</div>
+                                                            <div class="info-step-desc">特定格式的IV（如(3, 255, N)）会泄露密钥信息</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">2</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">统计分析</div>
+                                                            <div class="info-step-desc">对每个弱IV，计算密钥字节的可能值</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">3</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">投票决定</div>
+                                                            <div class="info-step-desc">统计每个字节值的出现频率，频率最高的即为正确密钥字节</div>
+                                                        </div>
+                                                    </div>
+                                                    <div class="info-step">
+                                                        <div class="info-step-num">4</div>
+                                                        <div class="info-step-content">
+                                                            <div class="info-step-title">逐字节恢复</div>
+                                                            <div class="info-step-desc">从第1字节开始，逐个恢复完整密钥</div>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                                <div class="teaching-tip-box">
+                                                    <h5>💡 实际效果</h5>
+                                                    <p>收集约50,000-60,000个IV即可破解64位WEP密钥，通常只需要几分钟。</p>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
